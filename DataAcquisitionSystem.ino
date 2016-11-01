@@ -8,15 +8,14 @@
 #include <Wire.h>
 
 #include <XBee.h>
-
-#include "GpsData.h"
+#include <TinyGPS++.h>
 
 #include "data.h"
 
 // Data Collection
 
 Data *data;
-GpsData gpsData;
+TinyGPSPlus gps;
 
 // Constants
 
@@ -83,15 +82,15 @@ void loop() {
   while (Serial1.available()) {
     int c = Serial1.read();
     
-    if (gpsData.encode(c)) {
+    if (gps.encode(c)) {
       Serial.print("Lat: ");
-      Serial.print(gpsData.lat);
+      Serial.print(gps.location.lat(), 6);
       Serial.print(", Lon: ");
-      Serial.print(gpsData.lon);
+      Serial.print(gps.location.lng(), 6);
       Serial.print(", Alt: ");
-      Serial.print(gpsData.altitude);
+      Serial.print(gps.altitude.meters(), 2);
       Serial.print(", Sats: ");
-      Serial.println(gpsData.satellites);
+      Serial.println(gps.satellites.value());
     }
   }
 
