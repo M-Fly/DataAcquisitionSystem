@@ -81,8 +81,12 @@ void loop() {
 
   while (Serial1.available()) {
     int c = Serial1.read();
+
+    //Serial.print((char) c);
+
+    gps.encode(c);
     
-    if (gps.encode(c)) {
+    if (gps.altitude.isUpdated() || gps.location.isUpdated() || gps.satellites.isUpdated()) {
       Serial.print("Lat: ");
       Serial.print(gps.location.lat(), 6);
       Serial.print(", Lon: ");
@@ -91,6 +95,8 @@ void loop() {
       Serial.print(gps.altitude.meters(), 2);
       Serial.print(", Sats: ");
       Serial.println(gps.satellites.value());
+
+      while (true);
     }
   }
 
