@@ -80,10 +80,8 @@ void loop() {
   data->update();
 
   while (Serial1.available()) {
-    int c = Serial1.read();
-
-    //Serial.print((char) c);
-
+    byte c = Serial1.read();
+    Serial.print((char)c);
     gps.encode(c);
     
     if (gps.altitude.isUpdated() || gps.location.isUpdated() || gps.satellites.isUpdated()) {
@@ -95,12 +93,10 @@ void loop() {
       Serial.print(gps.altitude.meters(), 2);
       Serial.print(", Sats: ");
       Serial.println(gps.satellites.value());
-
-      while (true);
     }
   }
 
-  delay(20);
+  delay(200);
   //unsigned long duration = pulseIn(11, HIGH);
   
   // Blink LED and Write Data to Serial regularly
