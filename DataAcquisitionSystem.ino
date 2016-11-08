@@ -1,8 +1,7 @@
 //M-Fly Flight Control Software
 
 // Look for items labeled 'TODO:' for items with questions or future work
-
-// NOTE: Altitude Measurement in Meters
+// TODO: getSystem in GpsData.h -> use enum?
 
 #include <Servo.h>
 #include <Wire.h>
@@ -90,7 +89,7 @@ void loop() {
       Serial.print(", Lon: ");
       Serial.print(gps.getLongitude());
       Serial.print(", Alt: ");
-      Serial.print(gps.getAltitude());
+      Serial.print(gps.getAltitudeMM());
       Serial.print(", Sats: ");
       Serial.println(gps.getNumSatellites());
 
@@ -116,7 +115,7 @@ void writeData() {
 
   // Drop Time and Drop Alt will both be -1 if no payload has been dropped yet.
   // A,MX2,MILLIS,ALT_BARO,AIRSPEED,DROP_TIME,DROP_ALT
-  // B,MX2,MILLIS,GPS_SYSTEM,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,FIX_TIME
+  // B,MX2,MILLIS,GPS_SYSTEM,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,GPS_HDOP,FIX_TIME
   // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
   
   String message = "MX2,";

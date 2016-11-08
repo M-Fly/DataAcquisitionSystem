@@ -7,21 +7,49 @@
 class GpsData {
 public:
   GpsData();
-  
+
+  // encode
+  // REQUIRES: Valid NMEA character from serial port
+  // MODIFIES: Nothing
+  // EFFECTS:  Returns true or false if a complete and valid NMEA
+  //            has been parsed
   bool encode(char c);
-  
-  long getLatitude();
-  long getLongitude();
-  long getSpeed();
-  long getCourse();
-  
-  long getAltitude();
-  bool isAltitudeValid();
 
-  int getNumSatellites();
-  int getHDOP();
+  // getLatitude
+  // Returns the latitude in millionths of a degree, positive North
+  long getLatitude() const;
 
-  long getLastFix();
+  // getLongitude
+  // Returns the longitude in millionths of a degree, positive East
+  long getLongitude() const;
+
+  // getSpeedKts
+  // Returns speed in 
+  long getSpeedKts() const;
+
+  // getCourse
+  // Returns the course in thousandths of a degree
+  long getCourse() const;
+
+  // getAltitudeMM
+  // Returns altitude in Millimeters
+  long getAltitudeMM() const;
+
+  // isAltitudeValid
+  // Returns true if most recent altitude came from a full 3D GPS lock
+  bool isAltitudeValid() const;
+
+  // getNumSatellites
+  // Returns the number of satellites currently connected
+  int getNumSatellites() const;
+
+  // getHDOP
+  // Returns the HDOP precision in tenths
+  int getHDOP() const;
+
+  // getLastFixMillis
+  // Returns the time of the last fix in milliseconds from Arduino start
+  long getLastFixMillis() const;
   
 private:
   char system;
