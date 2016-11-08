@@ -29,7 +29,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define _GPRMCterm   "GPRMC"
 #define _GNRMCterm   "GNRMC"
+#define _GLRMCterm   "GLRMC"
+#define _GARMCterm   "GARMC"
+
 #define _GPGGAterm   "GPGGA"
+#define _GNGGAterm   "GNGGA"
+#define _GLGGAterm   "GLGGA"
+#define _GAGGAterm   "GAGGA"
 
 TinyGPSPlus::TinyGPSPlus()
   :  parity(0)
@@ -209,9 +215,9 @@ bool TinyGPSPlus::endOfTermHandler()
   if (curTermNumber == 0)
   {
     //if (!strcmp(term, _GPRMCterm))
-    if (!strcmp(term, _GPRMCterm) || !strcmp(term, _GNRMCterm))
+    if (!strcmp(term, _GPRMCterm) || !strcmp(term, _GNRMCterm) || !strcmp(term, _GLRMCterm) || !strcmp(term, _GARMCterm))
       curSentenceType = GPS_SENTENCE_GPRMC;
-    else if (!strcmp(term, _GPGGAterm))
+    else if (!strcmp(term, _GPGGAterm) || !strcmp(term, _GNGGAterm) || !strcmp(term, _GLGGAterm) || !strcmp(term, _GAGGAterm))
       curSentenceType = GPS_SENTENCE_GPGGA;
     else
       curSentenceType = GPS_SENTENCE_OTHER;
