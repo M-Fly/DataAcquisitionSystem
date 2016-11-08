@@ -8,18 +8,19 @@
 #include <Wire.h>
 
 #include <XBee.h>
-#include <TinyGPS++.h>
 
 #include "data.h"
+#include "GpsData.h"
 
 // Data Collection
 
 Data *data;
-TinyGPSPlus gps;
+GpsData gps;
 
 // Constants
 
 const int HERTZ = 5;
+const char AIRCRAFT_ID[] = "MX2";
 
 // Time Constants for Data Collection
 
@@ -80,24 +81,22 @@ void loop() {
   data->update();
 
   while (Serial1.available()) {
-    byte c = Serial1.read();
-    Serial.print((char)c);
-    gps.encode(c);
+    char c = Serial1.read();
+    Serial.print(c);
     
-    if (gps.altitude.isUpdated() || gps.location.isUpdated() || gps.satellites.isUpdated()) {
+    if (gps.encode(c)) {
       Serial.print("Lat: ");
-      Serial.print(gps.location.lat(), 6);
+      Serial.print(gps.getLatitude());
       Serial.print(", Lon: ");
-      Serial.print(gps.location.lng(), 6);
+      Serial.print(gps.getLongitude());
       Serial.print(", Alt: ");
-      Serial.print(gps.altitude.meters(), 2);
+      Serial.print(gps.getAltitude());
       Serial.print(", Sats: ");
-      Serial.println(gps.satellites.value());
+      Serial.println(gps.getNumSatellites());
+
+      while (true);
     }
   }
-
-  delay(200);
-  //unsigned long duration = pulseIn(11, HIGH);
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
@@ -117,7 +116,7 @@ void writeData() {
 
   // Drop Time and Drop Alt will both be -1 if no payload has been dropped yet.
   // A,MX2,MILLIS,ALT_BARO,AIRSPEED,DROP_TIME,DROP_ALT
-  // B,MX2,MILLIS,GPS_TIME,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,FIX_TIME
+  // B,MX2,MILLIS,GPS_SYSTEM,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,FIX_TIME
   // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
   
   String message = "MX2,";
