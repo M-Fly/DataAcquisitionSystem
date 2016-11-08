@@ -68,20 +68,20 @@ void setup() {
 }
 
 void loop() {
-  // Wait 1000 milliseconds to ensure no false
-  // readings from the receiver 
-  if (millis() < (long)1000) return;
-  
   static long lastLoopTime = 0;
   static int lastAlt = 0;
 
   static byte lastLedState = 0;
   
+  // Wait 1000 milliseconds to ensure no false
+  // readings from the receiver 
+  if (millis() < (long)1000) return;
+  
   data->update();
 
   while (Serial1.available()) {
     char c = Serial1.read();
-    Serial.print(c);
+    //Serial.print(c);
     
     if (gps.encode(c)) {
       Serial.print("Lat: ");
@@ -92,8 +92,6 @@ void loop() {
       Serial.print(gps.getAltitudeMM());
       Serial.print(", Sats: ");
       Serial.println(gps.getNumSatellites());
-
-      while (true);
     }
   }
   
@@ -103,6 +101,8 @@ void loop() {
     lastLedState = !lastLedState;
     
     digitalWrite(ledPin, lastLedState);
+
+    if (millis() - gps.getLastFixMillis() > 1000) Serial.println("Waiting for GPS Lock");
     
     //writeData();
   }
