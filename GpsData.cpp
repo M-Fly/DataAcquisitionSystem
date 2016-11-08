@@ -10,9 +10,13 @@ GpsData::GpsData() : nmea(gps_buffer, sizeof(gps_buffer)) {
 }
 
 bool GpsData::encode(char c) {
+  // Encodes the most recent character into the NMEA object
   bool success = nmea.process(c);
 
   if (success && nmea.isValid()) {
+    // If a new NMEA sentence has been parsed and is valid
+    
+    // Set all the local variables to those present in the most recent GPS datapacket
     system = nmea.getNavSystem();
 
     lat = nmea.getLatitude();
@@ -30,43 +34,44 @@ bool GpsData::encode(char c) {
 
     return true;
   } else {
+    // Otherwise, return false (no valid sentence parsed)
     return false;
   }
 }
 
-long GpsData::getLatitude() {
+long GpsData::getLatitude() const {
   return lat;
 }
 
-long GpsData::getLongitude() {
+long GpsData::getLongitude() const {
   return lng;
 }
 
-long GpsData::getSpeed() {
+long GpsData::getSpeedKts() const {
   return speed;
 }
 
-long GpsData::getCourse() {
+long GpsData::getCourse() const {
   return course;
 }
 
-long GpsData::getAltitude() {
+long GpsData::getAltitudeMM() const {
   return altitude;
 }
 
-bool GpsData::isAltitudeValid() {
+bool GpsData::isAltitudeValid() const {
   return altitudeValid;
 }
 
-int GpsData::getNumSatellites() {
+int GpsData::getNumSatellites() const {
   return satellites;
 }
 
-int GpsData::getHDOP() {
+int GpsData::getHDOP() const {
   return hdop;
 }
 
-long GpsData::getLastFix() {
+long GpsData::getLastFixMillis() const {
   return lastFixMillis;
 }
 
