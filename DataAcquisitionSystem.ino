@@ -1,25 +1,25 @@
 //M-Fly Flight Control Software
 
 // Look for items labeled 'TODO:' for items with questions or future work
-
-// NOTE: Altitude Measurement in Meters
+// TODO: getSystem in GpsData.h -> use enum?
 
 #include <Servo.h>
 #include <Wire.h>
 
 #include <XBee.h>
-#include <TinyGPS++.h>
 
 #include "data.h"
+#include "GpsData.h"
 
 // Data Collection
 
 Data *data;
-TinyGPSPlus gps;
+GpsData gps;
 
 // Constants
 
 const int HERTZ = 5;
+const char AIRCRAFT_ID[] = "MX2";
 
 // Time Constants for Data Collection
 
@@ -44,8 +44,8 @@ const int ledPin = 13;
 
 // XBee Setup
 
-//XBee xbee;
-//XBeeAddress64 broadcast = XBeeAddress64(0x00000000, 0x0000ffff);
+XBee xbee;
+XBeeAddress64 broadcast = XBeeAddress64(0x00000000, 0x0000ffff);
 
 void setup() {  
   // Initiate Serial Port
@@ -54,7 +54,7 @@ void setup() {
 
   Serial1.begin(38400);
   
-  //xbee.begin(Serial);
+  //xbee.begin(Serial2);
   
   // Create Data class instance
   data = new Data();
@@ -68,36 +68,32 @@ void setup() {
 }
 
 void loop() {
-  // Wait 1000 milliseconds to ensure no false
-  // readings from the receiver 
-  if (millis() < (long)1000) return;
-  
   static long lastLoopTime = 0;
   static int lastAlt = 0;
 
   static byte lastLedState = 0;
   
+  // Wait 1000 milliseconds to ensure no false
+  // readings from the receiver 
+  if (millis() < (long)1000) return;
+  
   data->update();
 
   while (Serial1.available()) {
-    byte c = Serial1.read();
-    Serial.print((char)c);
-    gps.encode(c);
+    char c = Serial1.read();
+    //Serial.print(c);
     
-    if (gps.altitude.isUpdated() || gps.location.isUpdated() || gps.satellites.isUpdated()) {
+    if (gps.encode(c)) {
       Serial.print("Lat: ");
-      Serial.print(gps.location.lat(), 6);
+      Serial.print(gps.getLatitude());
       Serial.print(", Lon: ");
-      Serial.print(gps.location.lng(), 6);
+      Serial.print(gps.getLongitude());
       Serial.print(", Alt: ");
-      Serial.print(gps.altitude.meters(), 2);
+      Serial.print(gps.getAltitudeMM());
       Serial.print(", Sats: ");
-      Serial.println(gps.satellites.value());
+      Serial.println(gps.getNumSatellites());
     }
   }
-
-  delay(200);
-  //unsigned long duration = pulseIn(11, HIGH);
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
@@ -105,40 +101,91 @@ void loop() {
     lastLedState = !lastLedState;
     
     digitalWrite(ledPin, lastLedState);
+
+    if (millis() - gps.getLastFixMillis() > 1000) Serial.println("Waiting for GPS Lock");
     
     //writeData();
   }
 }
 
-void writeData() {
-  static char csvBuffer[128];
-  
-  float time = millis() / 1000.0f;
+void writeData(MessageType m) {
+  static char csvBuffer[256];
 
-  // Drop Time and Drop Alt will both be -1 if no payload has been dropped yet.
-  // A,MX2,MILLIS,ALT_BARO,AIRSPEED,DROP_TIME,DROP_ALT
-  // B,MX2,MILLIS,GPS_TIME,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,FIX_TIME
-  // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
+  String message = "";
+
+  int airspeed_TESTING = 30003;
+  int dropTime_TESTING = -1;
+  int dropAlt_TESTING = -1;
   
-  String message = "MX2,";
-  message += time;
-  message += ',';
-  message += data->getAltitude();
-  message += ',';
-  message += data->getGyroX();
-  message += ',';
-  message += data->getGyroY();
-  message += ',';
-  message += data->getGyroZ();
-  message += ',';
-  message += data->getAccelX();
-  message += ',';
-  message += data->getAccelY();
-  message += ',';
-  message += data->getAccelZ();
-  
+  if (m == StandardMessage) {
+
+    // A,MX2,MILLIS,ALT_BARO,AIRSPEED,DROP_TIME,DROP_ALT
+    // Drop time and altitude will be -1 until drop.
+    
+    message += "A,";
+    message += AIRCRAFT_ID;
+    message += ',';
+    message += millis();
+    message += ',';
+    message += data->getAltitude();
+    message += ',';
+    message += airspeed_TESTING;
+    message += ',';
+    message += dropTime_TESTING;
+    message += ',';
+    message += dropAlt_TESTING;
+    
+  } else if (m == GPS) {
+
+    // B,MX2,MILLIS,GPS_SYSTEM,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,GPS_HDOP,FIX_TIME
+    
+    message += "B,";
+    message += AIRCRAFT_ID;
+    message += ',';
+    message += millis();
+    message += ',';
+    message += gps.getGpsSystem();
+    message += ',';
+    message += gps.getLatitude();
+    message += ',';
+    message += gps.getLongitude();
+    message += ',';
+    message += gps.getSpeedKts();
+    message += ',';
+    message += gps.getCourse();
+    message += ',';
+    message += gps.getAltitudeMM();
+    message += ',';
+    message += gps.getHDOP();
+    message += ',';
+    message += gps.getLastFixMillis();
+    
+  } else if (m == GyroAccel) {
+
+    // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
+    
+    message += "C,";
+    message += AIRCRAFT_ID;
+    message += ',';
+    message += millis();
+    message += ',';
+    message += data->getGyroX();
+    message += ',';
+    message += data->getGyroY();
+    message += ',';
+    message += data->getGyroZ();
+    message += ',';
+    message += data->getAccelX();
+    message += ',';
+    message += data->getAccelY();
+    message += ',';
+    message += data->getAccelZ();
+  }
+
   message.toCharArray(csvBuffer, message.length());
-
   Serial.println(message);
+
+  ZBTxRequest zbtx = ZBTxRequest(broadcast, (uint8_t*) csvBuffer, strlen(csvBuffer));
+  xbee.send(zbtx);
 }
 
