@@ -8,6 +8,12 @@
 // Look for items labeled 'TODO:' for items with questions or future work
 // TODO: getSystem in GpsData.h -> use enum?
 
+
+
+
+
+// TODO: Fix Altitude 
+
 #include <Servo.h>
 #include <Wire.h>
 

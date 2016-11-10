@@ -16,20 +16,22 @@ public:
 
   Data();
 
-  float getAltitude();
+  float getAltitude() const;
 
-  float getAccelX();
-  float getAccelY();
-  float getAccelZ();
+  float getAccelX() const;
+  float getAccelY() const;
+  float getAccelZ() const;
 
-  float getGyroX();
-  float getGyroY();
-  float getGyroZ();
+  float getGyroX() const;
+  float getGyroY() const;
+  float getGyroZ() const;
 
-  float getMagX();
-  float getMagY();
-  float getMagZ();
+  float getMagX() const;
+  float getMagY() const;
+  float getMagZ() const;
+  
   void setBaseline();
+  
   void update();
 
 private:

@@ -50,7 +50,7 @@ Returns the (X) Value of the Accerlation
 Should be called immediately after update();
 Returns: AcccelX as a float
 */
-float Data::getAccelX() {
+float Data::getAccelX() const {
   return accelX;
 }
 
@@ -59,7 +59,7 @@ Returns the (Y) Value of the Accerlation
 Should be called immediately after update();
 Returns: AcccelY as a float
 */
-float Data::getAccelY() {
+float Data::getAccelY() const {
   return accelY;
 }
 
@@ -68,7 +68,7 @@ Returns the (Z) Value of the Accerlation
 Should be called immediately after update();
 Returns: AcccelZ as a float
 */
-float Data::getAccelZ() {
+float Data::getAccelZ() const {
   return accelZ;
 }
 
@@ -104,7 +104,7 @@ Returns the (X) Value of the Gyroscope
 Should be called immediately after update();
 Returns: gyroX as a float
 */
-float Data::getGyroX() {
+float Data::getGyroX() const {
   return gyroX;
 }
 
@@ -113,7 +113,7 @@ Returns the (Y) Value of the Gyroscope
 Should be called immediately after update();
 Returns: gyroY as a float
 */
-float Data::getGyroY() {
+float Data::getGyroY() const {
   return gyroY;
 }
 
@@ -122,7 +122,7 @@ Returns the (Z) Value of the Gyroscope
 Should be called immediately after update();
 Returns: gyroZ as a float
 */
-float Data::getGyroZ() {
+float Data::getGyroZ() const {
   return gyroZ;
 }
 
@@ -158,7 +158,7 @@ Returns the (X) Value of the magnetometer
 Should be called immediately after update();
 Returns: magX as a float
 */
-float Data::getMagX() {
+float Data::getMagX() const {
   return magX;
 }
 
@@ -167,7 +167,7 @@ Returns the (Y) Value of the magnetometer
 Should be called immediately after update();
 Returns: magY as a float
 */
-float Data::getMagY() {
+float Data::getMagY() const {
   return magY;
 }
 
@@ -176,7 +176,7 @@ Returns the (Z) Value of the magnetometer
 Should be called immediately after update();
 Returns: magZ as a float
 */
-float Data::getMagZ() {
+float Data::getMagZ() const {
   return magZ;
 }
 
@@ -233,7 +233,7 @@ float Data::getPressure()
         status = pressure.getPressure(P, T);
         if (status != 0)
         {
-          return(P);
+          return P;
         }
         else Serial.println("error retrieving pressure measurement\n");
       }
@@ -249,7 +249,7 @@ Returns the current Altitude
 Should be called immediately after update();
 Returns: aaltitude as a float
 */
-float Data::getAltitude() {
+float Data::getAltitude() const {
   return altitude;
 }
 /*
