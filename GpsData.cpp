@@ -75,3 +75,7 @@ long GpsData::getLastFixMillis() const {
   return lastFixMillis;
 }
 
+char GpsData::getGpsSystem() const {
+  return system;
+}
+

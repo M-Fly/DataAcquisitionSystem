@@ -44,8 +44,8 @@ const int ledPin = 13;
 
 // XBee Setup
 
-//XBee xbee;
-//XBeeAddress64 broadcast = XBeeAddress64(0x00000000, 0x0000ffff);
+XBee xbee;
+XBeeAddress64 broadcast = XBeeAddress64(0x00000000, 0x0000ffff);
 
 void setup() {  
   // Initiate Serial Port
@@ -54,7 +54,7 @@ void setup() {
 
   Serial1.begin(38400);
   
-  //xbee.begin(Serial);
+  //xbee.begin(Serial2);
   
   // Create Data class instance
   data = new Data();
@@ -108,35 +108,84 @@ void loop() {
   }
 }
 
-void writeData() {
-  static char csvBuffer[128];
-  
-  float time = millis() / 1000.0f;
+void writeData(MessageType m) {
+  static char csvBuffer[256];
 
-  // Drop Time and Drop Alt will both be -1 if no payload has been dropped yet.
-  // A,MX2,MILLIS,ALT_BARO,AIRSPEED,DROP_TIME,DROP_ALT
-  // B,MX2,MILLIS,GPS_SYSTEM,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,GPS_HDOP,FIX_TIME
-  // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
+  String message = "";
+
+  int airspeed_TESTING = 30003;
+  int dropTime_TESTING = -1;
+  int dropAlt_TESTING = -1;
   
-  String message = "MX2,";
-  message += time;
-  message += ',';
-  message += data->getAltitude();
-  message += ',';
-  message += data->getGyroX();
-  message += ',';
-  message += data->getGyroY();
-  message += ',';
-  message += data->getGyroZ();
-  message += ',';
-  message += data->getAccelX();
-  message += ',';
-  message += data->getAccelY();
-  message += ',';
-  message += data->getAccelZ();
-  
+  if (m == StandardMessage) {
+
+    // A,MX2,MILLIS,ALT_BARO,AIRSPEED,DROP_TIME,DROP_ALT
+    // Drop time and altitude will be -1 until drop.
+    
+    message += "A,";
+    message += AIRCRAFT_ID;
+    message += ',';
+    message += millis();
+    message += ',';
+    message += data->getAltitude();
+    message += ',';
+    message += airspeed_TESTING;
+    message += ',';
+    message += dropTime_TESTING;
+    message += ',';
+    message += dropAlt_TESTING;
+    
+  } else if (m == GPS) {
+
+    // B,MX2,MILLIS,GPS_SYSTEM,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,GPS_HDOP,FIX_TIME
+    
+    message += "B,";
+    message += AIRCRAFT_ID;
+    message += ',';
+    message += millis();
+    message += ',';
+    message += gps.getGpsSystem();
+    message += ',';
+    message += gps.getLatitude();
+    message += ',';
+    message += gps.getLongitude();
+    message += ',';
+    message += gps.getSpeedKts();
+    message += ',';
+    message += gps.getCourse();
+    message += ',';
+    message += gps.getAltitudeMM();
+    message += ',';
+    message += gps.getHDOP();
+    message += ',';
+    message += gps.getLastFixMillis();
+    
+  } else if (m == GyroAccel) {
+
+    // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
+    
+    message += "C,";
+    message += AIRCRAFT_ID;
+    message += ',';
+    message += millis();
+    message += ',';
+    message += data->getGyroX();
+    message += ',';
+    message += data->getGyroY();
+    message += ',';
+    message += data->getGyroZ();
+    message += ',';
+    message += data->getAccelX();
+    message += ',';
+    message += data->getAccelY();
+    message += ',';
+    message += data->getAccelZ();
+  }
+
   message.toCharArray(csvBuffer, message.length());
-
   Serial.println(message);
+
+  ZBTxRequest zbtx = ZBTxRequest(broadcast, (uint8_t*) csvBuffer, strlen(csvBuffer));
+  xbee.send(zbtx);
 }
 

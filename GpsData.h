@@ -51,6 +51,15 @@ public:
   // Returns the time of the last fix in milliseconds from Arduino start
   long getLastFixMillis() const;
   
+  // getGpsSystem
+  // Returns the system the GPS is currently connected to
+  //  P = GPS Only
+  //  L = GLONASS Only
+  //  A = Galileo Only
+  //  N = GNSS -> Multiple Constellations
+  //  \0 = No Fix
+  char getGpsSystem() const;
+  
 private:
   char system;
   bool altitudeValid;
