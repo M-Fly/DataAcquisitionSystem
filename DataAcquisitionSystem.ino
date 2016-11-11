@@ -59,13 +59,16 @@ XBee xbee;
 XBeeAddress64 broadcast = XBeeAddress64(0x00000000, 0x0000ffff);
 
 void setup() {  
-  // Initiate Serial Port
+  // Initiate USB Serial Port
   Serial.begin(57600);
   Serial.println("Starting");
 
+  // GPS Serial Port
   Serial1.begin(38400);
-  
-  //xbee.begin(Serial2);
+
+  // XBee Serial Port
+  Serial2.begin(38400);
+  xbee.setSerial(Serial2);
   
   // Create Data class instance
   data = new Data();
@@ -115,7 +118,7 @@ void loop() {
 
     if (millis() - gps.getLastFixMillis() > 1000) Serial.println("Waiting for GPS Lock");
     
-    //writeData();
+    writeData(StandardMessage);
   }
 }
 
