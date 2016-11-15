@@ -8,16 +8,10 @@
 // Look for items labeled 'TODO:' for items with questions or future work
 // TODO: getSystem in GpsData.h -> use enum?
 
-
-
-
-
 // TODO: Fix Altitude 
 
 #include <Servo.h>
 #include <Wire.h>
-
-#include <XBee.h>
 
 #include "data.h"
 #include "GpsData.h"
@@ -53,11 +47,6 @@ long dropTime = -1;
 
 const int ledPin = 13;
 
-// XBee Setup
-
-XBee xbee;
-XBeeAddress64 broadcast = XBeeAddress64(0x00000000, 0x0000ffff);
-
 void setup() {  
   // Initiate USB Serial Port
   Serial.begin(57600);
@@ -68,7 +57,6 @@ void setup() {
 
   // XBee Serial Port
   Serial2.begin(38400);
-  xbee.setSerial(Serial2);
   
   // Create Data class instance
   data = new Data();
@@ -127,6 +115,9 @@ void writeData(MessageType m) {
 
   String message = "";
 
+  static char DELIN = ',';
+  static char ENDL = ';';
+
   int airspeed_TESTING = 30003;
   int dropTime_TESTING = -1;
   int dropAlt_TESTING = -1;
@@ -138,15 +129,15 @@ void writeData(MessageType m) {
     
     message += "A,";
     message += AIRCRAFT_ID;
-    message += ',';
+    message += DELIN;
     message += millis();
-    message += ',';
+    message += DELIN;
     message += data->getAltitude();
-    message += ',';
+    message += DELIN;
     message += airspeed_TESTING;
-    message += ',';
+    message += DELIN;
     message += dropTime_TESTING;
-    message += ',';
+    message += DELIN;
     message += dropAlt_TESTING;
     
   } else if (m == GPS) {
@@ -155,23 +146,23 @@ void writeData(MessageType m) {
     
     message += "B,";
     message += AIRCRAFT_ID;
-    message += ',';
+    message += DELIN;
     message += millis();
-    message += ',';
+    message += DELIN;
     message += gps.getGpsSystem();
-    message += ',';
+    message += DELIN;
     message += gps.getLatitude();
-    message += ',';
+    message += DELIN;
     message += gps.getLongitude();
-    message += ',';
+    message += DELIN;
     message += gps.getSpeedKts();
-    message += ',';
+    message += DELIN;
     message += gps.getCourse();
-    message += ',';
+    message += DELIN;
     message += gps.getAltitudeMM();
-    message += ',';
+    message += DELIN;
     message += gps.getHDOP();
-    message += ',';
+    message += DELIN;
     message += gps.getLastFixMillis();
     
   } else if (m == GyroAccel) {
@@ -180,26 +171,26 @@ void writeData(MessageType m) {
     
     message += "C,";
     message += AIRCRAFT_ID;
-    message += ',';
+    message += DELIN;
     message += millis();
-    message += ',';
+    message += DELIN;
     message += data->getGyroX();
-    message += ',';
+    message += DELIN;
     message += data->getGyroY();
-    message += ',';
+    message += DELIN;
     message += data->getGyroZ();
-    message += ',';
+    message += DELIN;
     message += data->getAccelX();
-    message += ',';
+    message += DELIN;
     message += data->getAccelY();
-    message += ',';
+    message += DELIN;
     message += data->getAccelZ();
   }
 
+  message += ENDL;
+  
   message.toCharArray(csvBuffer, message.length());
   Serial.println(message);
-
-  ZBTxRequest zbtx = ZBTxRequest(broadcast, (uint8_t*) csvBuffer, strlen(csvBuffer));
-  xbee.send(zbtx);
+  Serial2.println(message);
 }
 
