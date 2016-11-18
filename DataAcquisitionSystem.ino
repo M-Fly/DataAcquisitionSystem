@@ -107,6 +107,7 @@ void loop() {
     if (millis() - gps.getLastFixMillis() > 1000) Serial.println("Waiting for GPS Lock");
     
     writeData(StandardMessage);
+    writeData(GyroAccel);
   }
 }
 
@@ -191,6 +192,6 @@ void writeData(MessageType m) {
   
   message.toCharArray(csvBuffer, message.length());
   Serial.println(message);
-  Serial2.println(message);
+  Serial2.print(message);
 }
 
