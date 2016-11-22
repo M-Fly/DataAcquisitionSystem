@@ -32,8 +32,8 @@ const int DELAY_TIME = 1000 / HERTZ; // For Loop
 
 enum MessageType {
   StandardMessage = 0,
-  GPS = 1,
-  GyroAccel = 2
+  GpsMessage = 1,
+  GyroAccelMessage = 2
 };
 
 // Drop Status Parameters
@@ -86,14 +86,7 @@ void loop() {
     //Serial.print(c);
     
     if (gps.encode(c)) {
-      Serial.print("Lat: ");
-      Serial.print(gps.getLatitude());
-      Serial.print(", Lon: ");
-      Serial.print(gps.getLongitude());
-      Serial.print(", Alt: ");
-      Serial.print(gps.getAltitudeMM());
-      Serial.print(", Sats: ");
-      Serial.println(gps.getNumSatellites());
+      writeData(GpsMessage);
     }
   }
   
@@ -107,12 +100,12 @@ void loop() {
     if (millis() - gps.getLastFixMillis() > 1000) Serial.println("Waiting for GPS Lock");
     
     writeData(StandardMessage);
-    writeData(GyroAccel);
+    writeData(GyroAccelMessage);
   }
 }
 
 void writeData(MessageType m) {
-  static char csvBuffer[256];
+  // TODO: Replace all message += with Serial2.print
 
   String message = "";
 
@@ -141,7 +134,7 @@ void writeData(MessageType m) {
     message += DELIN;
     message += dropAlt_TESTING;
     
-  } else if (m == GPS) {
+  } else if (m == GpsMessage) {
 
     // B,MX2,MILLIS,GPS_SYSTEM,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,GPS_HDOP,FIX_TIME
     
@@ -166,7 +159,7 @@ void writeData(MessageType m) {
     message += DELIN;
     message += gps.getLastFixMillis();
     
-  } else if (m == GyroAccel) {
+  } else if (m == GyroAccelMessage) {
 
     // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
     
@@ -190,7 +183,6 @@ void writeData(MessageType m) {
 
   message += ENDL;
   
-  message.toCharArray(csvBuffer, message.length());
   Serial.println(message);
   Serial2.print(message);
 }
