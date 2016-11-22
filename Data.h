@@ -5,19 +5,14 @@
 
 #include <Adafruit_Sensor.h>
 
-#include <SFE_BMP180.h>
-#include <Adafruit_BMP085_U.h>
-
-#include <Adafruit_LSM303_U.h> //Accel/Magneto sensor library
-#include <Adafruit_L3GD20_U.h> //Gyroscope library
+#include <Adafruit_BMP085_U.h> // Barometer sensor library
+#include <Adafruit_LSM303_U.h> // Accel/Magneto sensor library
+#include <Adafruit_L3GD20_U.h> // Gyroscope sensor library
 
 class Data {
 public:
-
   Data();
-
-  float getAltitude() const;
-
+  
   float getAccelX() const;
   float getAccelY() const;
   float getAccelZ() const;
@@ -29,37 +24,25 @@ public:
   float getMagX() const;
   float getMagY() const;
   float getMagZ() const;
-  
-  void setBaseline();
+
+  float getAltitude() const;
+  float getPressure() const;
+  float getTemperature() const;
   
   void update();
 
 private:
-  float getPressure();
-  void setAltitude(float inputAlt);
-  void setAccelX(float inputAccelX);
-  void setAccelY(float inputAccelY);
-  void setAccelZ(float inputAccelZ);
-  void setGyroX(float inputGyroX);
-  void setGyroY(float inputGyroY);
-  void setGyroZ(float inputGyroZ);
-  void setMagX(float inputMagX);
-  void setMagY(float inputMagY);
-  void setMagZ(float inputMagZ);
-
-  void setPressure(float inputPressure);
-  sensor_t mySensor;
+  sensors_event_t event;
   float accelX, accelY, accelZ;
   float gyroX,  gyroY,  gyroZ;
   float magX,   magY,   magZ;
+  float baseline, pressure, temperature, altitude;
 
-  SFE_BMP180 pressure;
-
+  Adafruit_BMP085_Unified bmp;
   Adafruit_LSM303_Accel_Unified accel;
   Adafruit_L3GD20_Unified gyro;
   Adafruit_LSM303_Mag_Unified mag;
-
-  float baseline, pressure1, altitude;
 };
 
 #endif
+
