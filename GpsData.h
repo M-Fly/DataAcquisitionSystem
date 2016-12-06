@@ -46,10 +46,6 @@ public:
   // getHDOP
   // Returns the HDOP precision in tenths
   int getHDOP() const;
-
-  // getLastFixMillis
-  // Returns the time of the last fix in milliseconds from Arduino start
-  long getLastFixMillis() const;
   
   // getGpsSystem
   // Returns the system the GPS is currently connected to
@@ -71,8 +67,6 @@ private:
 
   int satellites;
   int hdop;
-
-  long lastFixMillis;
 
   char gps_buffer[100];
   MicroNMEA nmea;

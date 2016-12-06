@@ -6,7 +6,6 @@ GpsData::GpsData() : nmea(gps_buffer, sizeof(gps_buffer)) {
   // Sets following parameters to indicate that the GPS does not have a lock
   system = '\0';
   altitudeValid = false;
-  lastFixMillis = 0;
 }
 
 bool GpsData::encode(char c) {
@@ -29,8 +28,6 @@ bool GpsData::encode(char c) {
 
     satellites = nmea.getNumSatellites();
     hdop = nmea.getHDOP();
-
-    lastFixMillis = millis();
 
     return true;
   } else {
@@ -69,10 +66,6 @@ int GpsData::getNumSatellites() const {
 
 int GpsData::getHDOP() const {
   return hdop;
-}
-
-long GpsData::getLastFixMillis() const {
-  return lastFixMillis;
 }
 
 char GpsData::getGpsSystem() const {

@@ -2,8 +2,10 @@
 #define __MFLY_DATA
 
 #include <arduino.h>
+#include <Wire.h>
 
 #include <Adafruit_Sensor.h>
+#include <Adafruit_10DOF.h>
 
 #include <Adafruit_BMP085_U.h> // Barometer sensor library
 #include <Adafruit_LSM303_U.h> // Accel/Magneto sensor library
@@ -38,6 +40,7 @@ private:
   float magX,   magY,   magZ;
   float baseline, pressure, temperature, altitude;
 
+  Adafruit_10DOF dof;
   Adafruit_BMP085_Unified bmp;
   Adafruit_LSM303_Accel_Unified accel;
   Adafruit_L3GD20_Unified gyro;

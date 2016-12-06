@@ -21,10 +21,18 @@
 Data *data;
 GpsData gps;
 
+// Serial Configuration
+
+HardwareSerial *gpsSerial = &Serial3;
+HardwareSerial *xbeeSerial = &Serial1;
+
 // Constants
 
 const int HERTZ = 5;
 const char AIRCRAFT_ID[] = "MX2";
+
+const int ANALOG_PIN = 0;
+int airspeed = 0;
 
 // Time Constants for Data Collection
 
@@ -53,10 +61,10 @@ void setup() {
   Serial.println("Starting");
 
   // GPS Serial Port
-  Serial1.begin(38400);
+  gpsSerial->begin(38400);
 
   // XBee Serial Port
-  Serial2.begin(38400);
+  xbeeSerial->begin(38400);
   
   // Create Data class instance
   data = new Data();
@@ -74,33 +82,39 @@ void loop() {
   static int lastAlt = 0;
 
   static byte lastLedState = 0;
+
+  static bool newGPSData = false;
   
   // Wait 1000 milliseconds to ensure no false
   // readings from the receiver 
   if (millis() < (long)1000) return;
-  
-  data->update();
 
-  while (Serial1.available()) {
-    char c = Serial1.read();
+  while (gpsSerial->available()) {
+    char c = gpsSerial->read();
     //Serial.print(c);
     
     if (gps.encode(c)) {
-      writeData(GpsMessage);
+      newGPSData = true;
     }
   }
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
+    data->update();
+    airspeed = analogRead(ANALOG_PIN);
+    
     lastLoopTime = millis();
     lastLedState = !lastLedState;
     
     digitalWrite(ledPin, lastLedState);
 
-    if (millis() - gps.getLastFixMillis() > 1000) Serial.println("Waiting for GPS Lock");
-    
+    if (newGPSData) {
+      writeData(GpsMessage);
+      newGPSData = false;
+    }
+
     writeData(StandardMessage);
-    writeData(GyroAccelMessage);
+    //writeData(GyroAccelMessage);
   }
 }
 
@@ -112,13 +126,13 @@ void writeData(MessageType m) {
   static char DELIN = ',';
   static char ENDL = ';';
 
-  int airspeed_TESTING = 30003;
+  //int airspeed_TESTING = 30003;
   int dropTime_TESTING = -1;
   int dropAlt_TESTING = -1;
   
   if (m == StandardMessage) {
 
-    // A,MX2,MILLIS,ALT_BARO,AIRSPEED,DROP_TIME,DROP_ALT
+    // A,MX2,MILLIS,ALT_BARO,ANALOG_PITOT,PRESS,TEMP,DROP_TIME,DROP_ALT
     // Drop time and altitude will be -1 until drop.
     
     message += "A,";
@@ -128,7 +142,11 @@ void writeData(MessageType m) {
     message += DELIN;
     message += data->getAltitude();
     message += DELIN;
-    message += airspeed_TESTING;
+    message += airspeed;
+    message += DELIN;
+    message += data->getPressure();
+    message += DELIN;
+    message += data->getTemperature();
     message += DELIN;
     message += dropTime_TESTING;
     message += DELIN;
@@ -136,7 +154,7 @@ void writeData(MessageType m) {
     
   } else if (m == GpsMessage) {
 
-    // B,MX2,MILLIS,GPS_SYSTEM,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,GPS_HDOP,FIX_TIME
+    // B,MX2,MILLIS,GPS_SYSTEM,LAT,LON,GPS_SPEED,GPS_COURSE,GPS_ALT,GPS_HDOP
     
     message += "B,";
     message += AIRCRAFT_ID;
@@ -156,8 +174,6 @@ void writeData(MessageType m) {
     message += gps.getAltitudeMM();
     message += DELIN;
     message += gps.getHDOP();
-    message += DELIN;
-    message += gps.getLastFixMillis();
     
   } else if (m == GyroAccelMessage) {
 
@@ -184,6 +200,6 @@ void writeData(MessageType m) {
   message += ENDL;
   
   Serial.println(message);
-  Serial2.print(message);
+  xbeeSerial->print(message);
 }
 

@@ -12,7 +12,7 @@ Data::Data() : accel(30301), mag(30302), gyro(20), bmp(18001) {
   accel.begin();
   mag.begin();
   gyro.begin();  
-  bmp.begin();
+  bmp.begin(BMP085_MODE_ULTRAHIGHRES);
 
   update();
   baseline = getPressure();
