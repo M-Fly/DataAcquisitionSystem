@@ -32,7 +32,14 @@ const int HERTZ = 5;
 const char AIRCRAFT_ID[] = "MX2";
 
 const int ANALOG_PIN = 0;
+const int RECEIVER_PIN = 4;
+const int SERVO_PIN = 2;
+
 int airspeed = 0;
+
+// Drop System
+
+Servo dropServo;
 
 // Time Constants for Data Collection
 
@@ -53,7 +60,7 @@ long dropTime = -1;
 
 // LED Setup
 
-const int ledPin = 13;
+const int LED_PIN = 13;
 
 void setup() {  
   // Initiate USB Serial Port
@@ -71,9 +78,14 @@ void setup() {
   data->update();
 
   // Initiate Servos
-  
-  pinMode(ledPin, OUTPUT);
 
+  //pinMode(RECEIVER_PIN, INPUT);
+  
+  //dropServo.attach(SERVO_PIN);
+  //dropServo.write(0);
+
+  // Final Steps
+  pinMode(LED_PIN, OUTPUT);
   Serial.println("Started");
 }
 
@@ -105,8 +117,14 @@ void loop() {
     
     lastLoopTime = millis();
     lastLedState = !lastLedState;
+
+    long t = pulseIn(RECEIVER_PIN, HIGH);
+    Serial.println(t);
+
+    if (t < 1000) dropServo.write(90);
+    else dropServo.write(45);
     
-    digitalWrite(ledPin, lastLedState);
+    digitalWrite(LED_PIN, lastLedState);
 
     if (newGPSData) {
       writeData(GpsMessage);
