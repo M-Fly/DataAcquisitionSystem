@@ -5,16 +5,14 @@
 // /_/  /_/     /_/   /_/\__, /  /_/   /_/_/\__, /_/ /_/\__/   \____/\____/_/ /_/\__/_/   \____/_/   /____/\____/_/  \__/ |__/|__/\__,_/_/   \___/ 
 //                      /____/             /____/                                                                                                  
 //
-// Look for items labeled 'TODO:' for items with questions or future work
-// TODO: getSystem in GpsData.h -> use enum?
-
-// TODO: Fix Altitude 
 
 #include <Servo.h>
 #include <Wire.h>
 
-#include "data.h"
+#include "Data.h"
 #include "GpsData.h"
+
+#include "Config.h"
 
 // Data Collection
 
@@ -26,14 +24,7 @@ GpsData gps;
 HardwareSerial *gpsSerial = &Serial3;
 HardwareSerial *xbeeSerial = &Serial1;
 
-// Constants
-
-const int HERTZ = 5;
-const char AIRCRAFT_ID[] = "MX2";
-
-const int ANALOG_PIN = 0;
-const int RECEIVER_PIN = 4;
-const int SERVO_PIN = 2;
+// Airspeed Data
 
 int airspeed = 0;
 
@@ -43,7 +34,7 @@ Servo dropServo;
 
 // Time Constants for Data Collection
 
-const int DELAY_TIME = 1000 / HERTZ; // For Loop
+const int DELAY_TIME = 1000 / TRANSMISSION_FREQUENCY_HERTZ; // For Loop
 
 enum MessageType {
   StandardMessage = 0,
@@ -58,9 +49,9 @@ long dropTime = -1;
 
 // Servo Setup
 
-// LED Setup
 
-const int LED_PIN = 13;
+
+// Setup Function
 
 void setup() {  
   // Initiate USB Serial Port
@@ -112,25 +103,28 @@ void loop() {
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
+    // Update data object and get new airspeed analog value
     data->update();
     airspeed = analogRead(ANALOG_PIN);
-    
+
+    // Set the new LED state
     lastLoopTime = millis();
     lastLedState = !lastLedState;
-
-    long t = pulseIn(RECEIVER_PIN, HIGH);
-    Serial.println(t);
-
-    if (t < 1000) dropServo.write(90);
-    else dropServo.write(45);
-    
     digitalWrite(LED_PIN, lastLedState);
+    
+    // Read in serial pulse from receiver
+    //long t = pulseIn(RECEIVER_PIN, HIGH);
 
+    //if (t < 1000) dropServo.write(90);
+    //else dropServo.write(45);
+
+    // Write GPS data if new data exists
     if (newGPSData) {
       writeData(GpsMessage);
       newGPSData = false;
     }
 
+    // Write other messages for user
     writeData(StandardMessage);
     //writeData(GyroAccelMessage);
   }
