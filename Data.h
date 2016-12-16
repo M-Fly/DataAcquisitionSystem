@@ -27,9 +27,9 @@ public:
   float getMagY() const;
   float getMagZ() const;
 
-  float getRoll() const;
-  float getPitch() const;
-  float getHeading() const;
+  int getRoll() const;
+  int getPitch() const;
+  int getHeading() const;
 
   float getAltitude() const;
   float getPressure() const;
@@ -47,7 +47,7 @@ private:
   float accelX, accelY, accelZ;
   float gyroX,  gyroY,  gyroZ;
   float magX,   magY,   magZ;
-  float roll,   pitch,  heading;
+  int roll,   pitch,  heading;
   float baseline, pressure, temperature, altitude;
 
   Adafruit_10DOF dof;

@@ -69,15 +69,15 @@ float Data::getMagZ() const {
   return magZ;
 }
 
-float Data::getRoll() const {
+int Data::getRoll() const {
   return roll;
 }
 
-float Data::getPitch() const {
+int Data::getPitch() const {
   return pitch;
 }
 
-float Data::getHeading() const {
+int Data::getHeading() const {
   return heading;
 }
 
@@ -133,8 +133,9 @@ void Data::update() {
   magZ = magEvent.magnetic.z;
 
  if (dof.fusionGetOrientation(&accelEvent, &magEvent, &orientation)) {
-  roll = orientation.roll;
-  pitch = orientation.pitch;
+  roll = (int) orientation.roll;
+  pitch = (int) orientation.pitch;
+  heading = (int) orientation.heading;
  }
 
   bmp.getPressure(&pressure);

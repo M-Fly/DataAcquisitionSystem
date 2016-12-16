@@ -190,7 +190,7 @@ void writeData(MessageType m) {
   } else if (m == GyroAccelMessage) {
 
     // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ -> OLD
-    // C,MX2,MILLIS,ROLL,PITCH
+    // C,MX2,MILLIS,ROLL,PITCH,HEADING
     
     message += "C,";
     message += AIRCRAFT_ID;
@@ -200,6 +200,8 @@ void writeData(MessageType m) {
     message += data->getRoll();
     message += DELIN;
     message += data->getPitch();
+    message += DELIN;
+    message += data->getHeading();
     
     /*
     message += data->getGyroX();
