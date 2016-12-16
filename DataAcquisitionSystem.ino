@@ -125,8 +125,8 @@ void loop() {
     }
 
     // Write other messages for user
-    writeData(StandardMessage);
-    //writeData(GyroAccelMessage);
+    //writeData(StandardMessage);
+    writeData(GyroAccelMessage);
   }
 }
 
@@ -189,13 +189,19 @@ void writeData(MessageType m) {
     
   } else if (m == GyroAccelMessage) {
 
-    // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
+    // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ -> OLD
+    // C,MX2,MILLIS,ROLL,PITCH
     
     message += "C,";
     message += AIRCRAFT_ID;
     message += DELIN;
     message += millis();
     message += DELIN;
+    message += data->getRoll();
+    message += DELIN;
+    message += data->getPitch();
+    
+    /*
     message += data->getGyroX();
     message += DELIN;
     message += data->getGyroY();
@@ -207,6 +213,7 @@ void writeData(MessageType m) {
     message += data->getAccelY();
     message += DELIN;
     message += data->getAccelZ();
+    */
   }
 
   message += ENDL;

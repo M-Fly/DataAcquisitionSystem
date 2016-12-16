@@ -27,6 +27,10 @@ public:
   float getMagY() const;
   float getMagZ() const;
 
+  float getRoll() const;
+  float getPitch() const;
+  float getHeading() const;
+
   float getAltitude() const;
   float getPressure() const;
   float getTemperature() const;
@@ -34,10 +38,16 @@ public:
   void update();
 
 private:
-  sensors_event_t event;
+  sensors_event_t magEvent;
+  sensors_event_t gyroEvent;
+  sensors_event_t accelEvent;
+  
+  sensors_vec_t orientation;
+  
   float accelX, accelY, accelZ;
   float gyroX,  gyroY,  gyroZ;
   float magX,   magY,   magZ;
+  float roll,   pitch,  heading;
   float baseline, pressure, temperature, altitude;
 
   Adafruit_10DOF dof;

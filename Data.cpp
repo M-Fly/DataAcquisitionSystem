@@ -69,6 +69,17 @@ float Data::getMagZ() const {
   return magZ;
 }
 
+float Data::getRoll() const {
+  return roll;
+}
+
+float Data::getPitch() const {
+  return pitch;
+}
+
+float Data::getHeading() const {
+  return heading;
+}
 
 /*
 Returns the current Altitude
@@ -105,21 +116,26 @@ calls the sensor's functions to access the values
 this should always be called prior to accessing any of the values
 */
 void Data::update() {
-  // Get Acceleration 
-  accel.getEvent(&event);
-  accelX = event.acceleration.x;
-  accelY = event.acceleration.y;
-  accelZ = event.acceleration.z;
+  // Get Acceleration
+  accel.getEvent(&accelEvent);
+  accelX = accelEvent.acceleration.x;
+  accelY = accelEvent.acceleration.y;
+  accelZ = accelEvent.acceleration.z;
 
-  gyro.getEvent(&event);
-  gyroX = event.gyro.x;
-  gyroY = event.gyro.y;
-  gyroZ = event.gyro.z;
+  gyro.getEvent(&gyroEvent);
+  gyroX = gyroEvent.gyro.x;
+  gyroY = gyroEvent.gyro.y;
+  gyroZ = gyroEvent.gyro.z;
   
-  mag.getEvent(&event);
-  magX = event.magnetic.x;
-  magY = event.magnetic.y;
-  magZ = event.magnetic.z;
+  mag.getEvent(&magEvent);
+  magX = magEvent.magnetic.x;
+  magY = magEvent.magnetic.y;
+  magZ = magEvent.magnetic.z;
+
+ if (dof.fusionGetOrientation(&accelEvent, &magEvent, &orientation)) {
+  roll = orientation.roll;
+  pitch = orientation.pitch;
+ }
 
   bmp.getPressure(&pressure);
   bmp.getTemperature(&temperature);
