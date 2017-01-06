@@ -3,7 +3,7 @@ Code written 10/16/15
 Written by Daniel and James
 Function Comments written by Daniel
 
-Updated Nov. 22, 2016 - Ian O'Rourke
+Updated Jan 5, 2017 - Ian O'Rourke
 */
 
 #include "Data.h"
@@ -131,16 +131,16 @@ void Data::update() {
   magX = magEvent.magnetic.x;
   magY = magEvent.magnetic.y;
   magZ = magEvent.magnetic.z;
-
- if (dof.fusionGetOrientation(&accelEvent, &magEvent, &orientation)) {
-  roll = (int) orientation.roll;
-  pitch = (int) orientation.pitch;
-  heading = (int) orientation.heading;
- }
-
+  
+  if (dof.fusionGetOrientation(&accelEvent, &magEvent, &orientation)) {
+    roll = (int) orientation.roll;
+    pitch = (int) orientation.pitch;
+    heading = (int) orientation.heading;
+  }
+  
   bmp.getPressure(&pressure);
   bmp.getTemperature(&temperature);
-
+  
   altitude = bmp.pressureToAltitude(baseline, pressure);
 }
 

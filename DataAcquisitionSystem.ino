@@ -125,7 +125,7 @@ void loop() {
     }
 
     // Write other messages for user
-    //writeData(StandardMessage);
+    writeData(StandardMessage);
     writeData(GyroAccelMessage);
   }
 }
@@ -197,13 +197,6 @@ void writeData(MessageType m) {
     message += DELIN;
     message += millis();
     message += DELIN;
-    message += data->getRoll();
-    message += DELIN;
-    message += data->getPitch();
-    message += DELIN;
-    message += data->getHeading();
-    
-    /*
     message += data->getGyroX();
     message += DELIN;
     message += data->getGyroY();
@@ -215,6 +208,14 @@ void writeData(MessageType m) {
     message += data->getAccelY();
     message += DELIN;
     message += data->getAccelZ();
+    
+    // Get Roll and Pitch Angles (Commented-out)
+    /*
+    message += data->getRoll();
+    message += DELIN;
+    message += data->getPitch();
+    message += DELIN;
+    message += data->getHeading();
     */
   }
 
