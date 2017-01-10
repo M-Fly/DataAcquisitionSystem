@@ -21,8 +21,8 @@ GpsData gps;
 
 // Serial Configuration
 
-HardwareSerial *gpsSerial = &Serial3;
-HardwareSerial *xbeeSerial = &Serial1;
+const HardwareSerial *gpsSerial = &Serial3;
+const HardwareSerial *xbeeSerial = &Serial1;
 
 // Airspeed Data
 
