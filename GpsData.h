@@ -2,7 +2,7 @@
 #define __DAS_GPS_DATA__
 
 #include <MicroNMEA.h>
-#include <arduino.h>
+#include <Arduino.h>
 
 class GpsData {
 public:

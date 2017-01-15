@@ -1,7 +1,7 @@
 #ifndef __MFLY_DATA
 #define __MFLY_DATA
 
-#include <arduino.h>
+#include <Arduino.h>
 #include <Wire.h>
 
 #include <Adafruit_Sensor.h>
