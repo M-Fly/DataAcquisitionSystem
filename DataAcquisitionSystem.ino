@@ -6,6 +6,8 @@
 //                      /____/             /____/                                                                                                  
 //
 
+// NOTE: Modifications for use on Arduino Nano -> No Multiple Serial Ports or other nice features...
+
 #include <Servo.h>
 #include <Wire.h>
 
@@ -74,6 +76,14 @@ void loop() {
   // Wait 1000 milliseconds to ensure no false
   // readings from the receiver 
   if (millis() < (long)1000) return;
+
+  // Read in serial pulse from receiver
+  long t = pulseIn(RECEIVER_PIN, HIGH);
+
+  if (t < 1000) dropServo.write(90);
+  else dropServo.write(45);
+
+  Serial.println(t);
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
@@ -85,12 +95,6 @@ void loop() {
     lastLoopTime = millis();
     lastLedState = !lastLedState;
     digitalWrite(LED_PIN, lastLedState);
-    
-    // Read in serial pulse from receiver
-    long t = pulseIn(RECEIVER_PIN, HIGH);
-
-    if (t < 1000) dropServo.write(90);
-    else dropServo.write(45);
 
     // Write GPS data if new data exists
     if (newGPSData) {
