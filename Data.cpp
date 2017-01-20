@@ -69,18 +69,6 @@ float Data::getMagZ() const {
   return magZ;
 }
 
-int Data::getRoll() const {
-  return roll;
-}
-
-int Data::getPitch() const {
-  return pitch;
-}
-
-int Data::getHeading() const {
-  return heading;
-}
-
 /*
 Returns the current Altitude
 Should be called immediately after update();
@@ -131,12 +119,14 @@ void Data::update() {
   magX = magEvent.magnetic.x;
   magY = magEvent.magnetic.y;
   magZ = magEvent.magnetic.z;
-  
+
+  /*
   if (dof.fusionGetOrientation(&accelEvent, &magEvent, &orientation)) {
     roll = (int) orientation.roll;
     pitch = (int) orientation.pitch;
     heading = (int) orientation.heading;
   }
+  */
   
   bmp.getPressure(&pressure);
   bmp.getTemperature(&temperature);

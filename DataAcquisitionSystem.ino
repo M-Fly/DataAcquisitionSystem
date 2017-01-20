@@ -32,6 +32,9 @@ int airspeed = 0;
 
 Servo dropServo;
 
+int dropAlt = -1;
+long dropTime = -1;
+
 // Time Constants for Data Collection
 
 const int DELAY_TIME = 1000 / TRANSMISSION_FREQUENCY_HERTZ; // For Loop
@@ -41,15 +44,6 @@ enum MessageType {
   GpsMessage = 1,
   GyroAccelMessage = 2
 };
-
-// Drop Status Parameters
-
-int dropAlt = -1;
-long dropTime = -1;
-
-// Servo Setup
-
-
 
 // Setup Function
 
@@ -70,10 +64,10 @@ void setup() {
 
   // Initiate Servos
 
-  //pinMode(RECEIVER_PIN, INPUT);
+  pinMode(RECEIVER_PIN, INPUT);
   
-  //dropServo.attach(SERVO_PIN);
-  //dropServo.write(0);
+  dropServo.attach(SERVO_PIN);
+  dropServo.write(0);
 
   // Final Steps
   pinMode(LED_PIN, OUTPUT);
@@ -113,10 +107,10 @@ void loop() {
     digitalWrite(LED_PIN, lastLedState);
     
     // Read in serial pulse from receiver
-    //long t = pulseIn(RECEIVER_PIN, HIGH);
+    long t = pulseIn(RECEIVER_PIN, HIGH);
 
-    //if (t < 1000) dropServo.write(90);
-    //else dropServo.write(45);
+    if (t < 1000) dropServo.write(90);
+    else dropServo.write(45);
 
     // Write GPS data if new data exists
     if (newGPSData) {
@@ -135,12 +129,8 @@ void writeData(MessageType m) {
 
   String message = "";
 
-  static char DELIN = ',';
-  static char ENDL = ';';
-
-  //int airspeed_TESTING = 30003;
-  int dropTime_TESTING = -1;
-  int dropAlt_TESTING = -1;
+  const static char DELIN = ',';
+  const static char ENDL = ';';
   
   if (m == StandardMessage) {
 
@@ -160,9 +150,9 @@ void writeData(MessageType m) {
     message += DELIN;
     message += data->getTemperature();
     message += DELIN;
-    message += dropTime_TESTING;
+    message += dropTime;
     message += DELIN;
-    message += dropAlt_TESTING;
+    message += dropAlt;
     
   } else if (m == GpsMessage) {
 
@@ -222,6 +212,6 @@ void writeData(MessageType m) {
   message += ENDL;
   
   Serial.println(message);
-  xbeeSerial->print(message);
+  (*xbeeSerial).print(message);
 }
 
