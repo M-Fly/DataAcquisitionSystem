@@ -19,11 +19,6 @@
 Data *data;
 GpsData gps;
 
-// Serial Configuration
-
-const HardwareSerial *gpsSerial = &Serial3;
-const HardwareSerial *xbeeSerial = &Serial1;
-
 // Airspeed Data
 
 int airspeed = 0;
@@ -49,14 +44,8 @@ enum MessageType {
 
 void setup() {  
   // Initiate USB Serial Port
-  Serial.begin(57600);
+  Serial.begin(38400);
   Serial.println("Starting");
-
-  // GPS Serial Port
-  gpsSerial->begin(38400);
-
-  // XBee Serial Port
-  xbeeSerial->begin(38400);
   
   // Create Data class instance
   data = new Data();
@@ -85,15 +74,6 @@ void loop() {
   // Wait 1000 milliseconds to ensure no false
   // readings from the receiver 
   if (millis() < (long)1000) return;
-
-  while (gpsSerial->available()) {
-    char c = gpsSerial->read();
-    //Serial.print(c);
-    
-    if (gps.encode(c)) {
-      newGPSData = true;
-    }
-  }
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
@@ -212,6 +192,5 @@ void writeData(MessageType m) {
   message += ENDL;
   
   Serial.println(message);
-  (*xbeeSerial).print(message);
 }
 
