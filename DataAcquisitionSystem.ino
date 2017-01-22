@@ -67,7 +67,7 @@ void setup() {
   pinMode(RECEIVER_PIN, INPUT);
   
   dropServo.attach(SERVO_PIN);
-  dropServo.write(0);
+  dropServo.write(SERVO_START);
 
   // Final Steps
   pinMode(LED_PIN, OUTPUT);
@@ -94,6 +94,12 @@ void loop() {
       newGPSData = true;
     }
   }
+
+  // Read in serial pulse from receiver
+  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+
+  if (dropPulse < 1000) dropServo.write(SERVO_END);
+  else dropServo.write(SERVO_START);
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
@@ -105,12 +111,6 @@ void loop() {
     lastLoopTime = millis();
     lastLedState = !lastLedState;
     digitalWrite(LED_PIN, lastLedState);
-    
-    // Read in serial pulse from receiver
-    long t = pulseIn(RECEIVER_PIN, HIGH);
-
-    if (t < 1000) dropServo.write(90);
-    else dropServo.write(45);
 
     // Write GPS data if new data exists
     if (newGPSData) {
@@ -198,15 +198,6 @@ void writeData(MessageType m) {
     message += data->getAccelY();
     message += DELIN;
     message += data->getAccelZ();
-    
-    // Get Roll and Pitch Angles (Commented-out)
-    /*
-    message += data->getRoll();
-    message += DELIN;
-    message += data->getPitch();
-    message += DELIN;
-    message += data->getHeading();
-    */
   }
 
   message += ENDL;
