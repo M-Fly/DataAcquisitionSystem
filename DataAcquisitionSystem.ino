@@ -58,7 +58,7 @@ void setup() {
   pinMode(RECEIVER_PIN, INPUT);
   
   dropServo.attach(SERVO_PIN);
-  dropServo.write(0);
+  dropServo.write(SERVO_START);
 
   // Final Steps
   pinMode(LED_PIN, OUTPUT);
@@ -80,10 +80,8 @@ void loop() {
   // Read in serial pulse from receiver
   long t = pulseIn(RECEIVER_PIN, HIGH);
 
-  if (t < 1000) dropServo.write(90);
-  else dropServo.write(45);
-
-  Serial.println(t);
+  if (t < 1000) dropServo.write(SERVO_END);
+  else dropServo.write(SERVO_START);
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
