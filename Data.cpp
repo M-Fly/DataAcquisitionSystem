@@ -9,10 +9,18 @@ Updated Jan 5, 2017 - Ian O'Rourke
 #include "Data.h"
 
 Data::Data() : accel(30301), mag(30302), gyro(20), bmp(18001) {
-  accel.begin();
-  mag.begin();
-  gyro.begin();  
-  bmp.begin(BMP085_MODE_ULTRAHIGHRES);
+  if (!accel.begin()) {
+    Serial.println("No Accel");
+  }
+  if (!mag.begin()) {
+    Serial.println("No Mag");
+  }
+  if (!gyro.begin()) {
+    Serial.println("No Gyro");
+  }
+  if (!bmp.begin()) {
+    Serial.println("No Press");
+  }
 
   update();
   baseline = getPressure();

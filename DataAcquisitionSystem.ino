@@ -16,7 +16,7 @@
 
 // Data Collection
 
-Data *data;
+Data *data = 0;
 GpsData gps;
 
 // Serial Configuration
@@ -57,13 +57,8 @@ void setup() {
 
   // XBee Serial Port
   xbeeSerial->begin(38400);
-  
-  // Create Data class instance
-  data = new Data();
-  data->update();
 
   // Initiate Servos
-
   pinMode(RECEIVER_PIN, INPUT);
   
   dropServo.attach(SERVO_PIN);
@@ -85,6 +80,9 @@ void loop() {
   // Wait 1000 milliseconds to ensure no false
   // readings from the receiver 
   if (millis() < (long)1000) return;
+
+  // Instantiate a new data object
+  if (data == 0) data = new Data();
 
   while (gpsSerial->available()) {
     char c = gpsSerial->read();
@@ -179,8 +177,7 @@ void writeData(MessageType m) {
     
   } else if (m == GyroAccelMessage) {
 
-    // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ -> OLD
-    // C,MX2,MILLIS,ROLL,PITCH,HEADING
+    // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
     
     message += "C,";
     message += AIRCRAFT_ID;
@@ -203,6 +200,6 @@ void writeData(MessageType m) {
   message += ENDL;
   
   Serial.println(message);
-  (*xbeeSerial).print(message);
+  xbeeSerial->print(message);
 }
 
