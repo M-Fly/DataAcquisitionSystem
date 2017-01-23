@@ -47,7 +47,9 @@ enum MessageType {
 
 // Setup Function
 
-void setup() {  
+void setup() {
+  delay(500);
+  
   // Initiate USB Serial Port
   Serial.begin(57600);
   Serial.println("Starting");
@@ -86,7 +88,6 @@ void loop() {
 
   while (gpsSerial->available()) {
     char c = gpsSerial->read();
-    //Serial.print(c);
     
     if (gps.encode(c)) {
       newGPSData = true;
