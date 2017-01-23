@@ -60,6 +60,8 @@ void setup() {
   // XBee Serial Port
   xbeeSerial->begin(38400);
 
+  data = new Data();
+
   // Initiate Servos
   pinMode(RECEIVER_PIN, INPUT);
   
@@ -82,9 +84,6 @@ void loop() {
   // Wait 1000 milliseconds to ensure no false
   // readings from the receiver 
   if (millis() < (long)1000) return;
-
-  // Instantiate a new data object
-  if (data == 0) data = new Data();
 
   while (gpsSerial->available()) {
     char c = gpsSerial->read();
