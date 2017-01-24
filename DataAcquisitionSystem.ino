@@ -94,7 +94,8 @@ void loop() {
   }
 
   // Read in serial pulse from receiver
-  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+  long dropPulse = 0;//pulseIn(RECEIVER_PIN, HIGH);
+  delay(20);
 
   if (dropPulse < 1000) dropServo.write(SERVO_END);
   else dropServo.write(SERVO_START);
