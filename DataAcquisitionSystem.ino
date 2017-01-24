@@ -94,7 +94,12 @@ void loop() {
   }
 
   // Read in serial pulse from receiver
-  long dropPulse = 0;//pulseIn(RECEIVER_PIN, HIGH);
+  
+  // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
+  // Otherwise, this may cause problems with the GPS
+  
+  //long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+  long dropPulse = 0;
   delay(20);
 
   if (dropPulse < 1000) dropServo.write(SERVO_END);
@@ -124,7 +129,7 @@ void loop() {
 }
 
 void writeData(MessageType m) {
-  // TODO: Replace all message += with Serial2.print
+  // TODO: Replace all message += with Serial2.print, no need to print to usb debugging for final version
 
   String message = "";
 
