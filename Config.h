@@ -12,8 +12,8 @@ const int ANALOG_PIN = 0;
 const int RECEIVER_PIN = 4;
 
 const int SERVO_PIN = 2;
-const int SERVO_START = 15;
-const int SERVO_END = 165;
+const int SERVO_START = 30;
+const int SERVO_END = 120;
 
 
 // LED Setup
