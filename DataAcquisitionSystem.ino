@@ -98,12 +98,9 @@ void loop() {
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
   // Otherwise, this may cause problems with the GPS
   
-  //long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-  long dropPulse = 0;
-  delay(20);
-
+  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
   if (dropPulse < 1000) dropServo.write(SERVO_END);
-  else dropServo.write(SERVO_START);
+  else dropServo.write(SERVO_START);df
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
