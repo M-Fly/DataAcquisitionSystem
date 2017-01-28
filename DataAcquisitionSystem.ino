@@ -75,8 +75,6 @@ void setup() {
 
 void loop() {
   static long lastLoopTime = 0;
-  static int lastAlt = 0;
-
   static byte lastLedState = 0;
 
   static bool newGPSData = false;
@@ -99,8 +97,14 @@ void loop() {
   // Otherwise, this may cause problems with the GPS
   
   long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-  if (dropPulse < 1000) dropServo.write(SERVO_END);
-  else dropServo.write(SERVO_START);df
+  if (dropPulse < 1000) {
+    dropServo.write(SERVO_END);
+    dropTime = millis();
+    dropAlt = data->getAltitude();
+  }
+  else {
+    dropServo.write(SERVO_START);
+  }
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
