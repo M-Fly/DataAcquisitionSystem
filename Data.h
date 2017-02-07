@@ -7,7 +7,7 @@
 #include <Adafruit_Sensor.h>
 
 #include <Adafruit_BMP085_U.h> // Barometer sensor library
-#include <Adafruit_LSM303_U.h> // Accel/Magneto sensor library
+#include "MFly_LSM303_U.h" // Accel/Magneto sensor library
 #include <Adafruit_L3GD20_U.h> // Gyroscope sensor library
 
 class Data {
