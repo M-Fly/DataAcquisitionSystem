@@ -206,7 +206,7 @@ void writeData(MessageType m) {
 
   message += ENDL;
   
-  Serial.println(message);
+  //Serial.println(message);
   xbeeSerial->print(message);
 }
 
