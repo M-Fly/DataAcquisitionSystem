@@ -5,7 +5,7 @@
 
 // Data Transmission Information
 const int TRANSMISSION_FREQUENCY_HERTZ = 5;
-const char AIRCRAFT_ID[] = "MX2";
+const char AIRCRAFT_ID[] = "MX";
 
 // Pins for Input/Output
 const int ANALOG_PIN = 0;
