@@ -21,8 +21,8 @@ GpsData gps;
 
 // Serial Configuration
 
-const HardwareSerial *gpsSerial = &Serial3;
-const HardwareSerial *xbeeSerial = &Serial1;
+const HardwareSerial *gpsSerial = &Serial1;
+const HardwareSerial *xbeeSerial = &Serial3;
 
 // Airspeed Data
 
@@ -30,7 +30,8 @@ int airspeed = 0;
 
 // Drop System
 
-Servo dropServo;
+Servo dropServo_1;
+Servo dropServo_2;
 
 int dropAlt = -1;
 long dropTime = -1;
@@ -65,8 +66,11 @@ void setup() {
   // Initiate Servos
   pinMode(RECEIVER_PIN, INPUT);
   
-  dropServo.attach(SERVO_PIN);
-  dropServo.write(SERVO_START);
+  dropServo_1.attach(SERVO_PIN_1);
+  dropServo_1.write(SERVO_START);
+
+  dropServo_2.attach(SERVO_PIN_2);
+  dropServo_2.write(SERVO_START);
 
   // Final Steps
   pinMode(LED_PIN, OUTPUT);
@@ -96,16 +100,19 @@ void loop() {
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
   // Otherwise, this may cause problems with the GPS
   
-  //long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-  long dropPulse = 0;
-  
+  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+//  long dropPulse = 0;
+    
   if (dropPulse < 1000) {
-    dropServo.write(SERVO_END);
+    dropServo_1.write(SERVO_END);
+    dropServo_2.write(SERVO_END);
+    
     dropTime = millis();
     dropAlt = data->getAltitude();
   }
   else {
-    dropServo.write(SERVO_START);
+    dropServo_1.write(SERVO_START);
+    dropServo_2.write(SERVO_START);
   }
   
   // Blink LED and Write Data to Serial regularly

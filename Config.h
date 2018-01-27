@@ -9,9 +9,10 @@ const char AIRCRAFT_ID[] = "MX";
 
 // Pins for Input/Output
 const int ANALOG_PIN = 0;
-const int RECEIVER_PIN = 4;
+const int RECEIVER_PIN = 2;
 
-const int SERVO_PIN = 2;
+const int SERVO_PIN_1 = 3;
+const int SERVO_PIN_2 = 4;
 const int SERVO_START = 30;
 const int SERVO_END = 120;
 
