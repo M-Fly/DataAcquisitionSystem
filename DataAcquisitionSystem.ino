@@ -12,12 +12,15 @@
 #include "Data.h"
 #include "GpsData.h"
 
+#include <Adafruit_BNO055.h>
+
 #include "Config.h"
 
 // Data Collection
 
 Data *data = 0;
 GpsData gps;
+Adafruit_BNO055 bno = Adafruit_BNO055();
 
 // Serial Configuration
 
@@ -72,6 +75,14 @@ void setup() {
   dropServo_2.attach(SERVO_PIN_2);
   dropServo_2.write(SERVO_START);
 
+  //Set up bno
+  if(!bno.begin())
+  {
+    Serial.print("No BNO055");
+  }
+  
+  bno.setExtCrystalUse(true);
+
   // Final Steps
   pinMode(LED_PIN, OUTPUT);
   Serial.println("Started");
@@ -100,8 +111,8 @@ void loop() {
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
   // Otherwise, this may cause problems with the GPS
   
-  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-//  long dropPulse = 0;
+//  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+  long dropPulse = 0;
     
   if (dropPulse < 1000) {
     dropServo_1.write(SERVO_END);
@@ -194,28 +205,30 @@ void writeData(MessageType m) {
   } else if (m == GyroAccelMessage) {
 
     // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
+    imu::Vector<3> accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    imu::Vector<3> gyros = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
     
     message += "C,";
     message += AIRCRAFT_ID;
     message += DELIN;
     message += millis();
     message += DELIN;
-    message += data->getGyroX();
+    message += gyros.x();
     message += DELIN;
-    message += data->getGyroY();
+    message += gyros.y();
     message += DELIN;
-    message += data->getGyroZ();
+    message += gyros.z();
     message += DELIN;
-    message += data->getAccelX();
+    message += accel.x();
     message += DELIN;
-    message += data->getAccelY();
+    message += accel.y();
     message += DELIN;
-    message += data->getAccelZ();
+    message += accel.z();
   }
 
   message += ENDL;
   
-  //Serial.println(message);
+  Serial.println(message);
   xbeeSerial->print(message);
 }
 
