@@ -110,7 +110,9 @@ void setup() {
 //    Serial.println("");
   }
   base_alt /= i;
-//  Serial.println(base_alt);
+//  Serial.print("Base Alt: ");
+//  Serial.print(base_alt);
+//  Serial.println("");
 }
 
 void loop() {
