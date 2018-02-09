@@ -13,6 +13,7 @@
 #include "GpsData.h"
 
 #include <Adafruit_BNO055.h>
+#include <Adafruit_MPL3115A2.h>
 
 #include "Config.h"
 
@@ -21,6 +22,8 @@
 Data *data = 0;
 GpsData gps;
 Adafruit_BNO055 bno = Adafruit_BNO055();
+Adafruit_MPL3115A2 baro = Adafruit_MPL3115A2();
+bool DMESSAGE = true;
 
 // Serial Configuration
 
@@ -40,14 +43,16 @@ int dropAlt = -1;
 long dropTime = -1;
 
 // Time Constants for Data Collection
-
 const int DELAY_TIME = 1000 / TRANSMISSION_FREQUENCY_HERTZ; // For Loop
 
 enum MessageType {
   StandardMessage = 0,
   GpsMessage = 1,
-  GyroAccelMessage = 2
+  GyroAccelMessage = 2,
+  DMessage = 3
 };
+
+float base_alt = 0;
 
 // Setup Function
 
@@ -80,16 +85,37 @@ void setup() {
   {
     Serial.print("No BNO055");
   }
+
+  //Set up baro
+  if (!baro.begin())
+  {
+    Serial.println("No MPL3115A2");
+    DMESSAGE = false;
+    return;
+  }
   
   bno.setExtCrystalUse(true);
 
   // Final Steps
   pinMode(LED_PIN, OUTPUT);
   Serial.println("Started");
+
+  int i;
+  for(i = 0; i < BARO_NUM_READINGS; ++i)
+  {
+    base_alt += baro.getAltitude();
+//    Serial.print(i);
+//    Serial.print(" ");
+//    Serial.print(base_alt);
+//    Serial.println("");
+  }
+  base_alt /= i;
+//  Serial.println(base_alt);
 }
 
 void loop() {
   static long lastLoopTime = 0;
+  static long lastLoopTime_2 = 0;
   static byte lastLedState = 0;
 
   static bool newGPSData = false;
@@ -111,8 +137,8 @@ void loop() {
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
   // Otherwise, this may cause problems with the GPS
   
-//  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-  long dropPulse = 0;
+  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+//  long dropPulse = 0;
     
   if (dropPulse < 1000) {
     dropServo_1.write(SERVO_END);
@@ -145,7 +171,13 @@ void loop() {
 
     // Write other messages for user
     writeData(StandardMessage);
-    writeData(GyroAccelMessage);
+    writeData(GyroAccelMessage);    
+  }
+  
+  if(millis() - lastLoopTime_2 >= 1000)
+  {
+    writeData(DMessage);
+    lastLoopTime_2 = millis();
   }
 }
 
@@ -224,6 +256,15 @@ void writeData(MessageType m) {
     message += accel.y();
     message += DELIN;
     message += accel.z();
+  } else if (m == DMessage) {
+    // D,MX,MILLIS,BAROALT
+
+    message += "D,";
+    message += AIRCRAFT_ID;
+    message += DELIN;
+    message += millis();
+    message += DELIN;
+    message += (baro.getAltitude() - base_alt);
   }
 
   message += ENDL;

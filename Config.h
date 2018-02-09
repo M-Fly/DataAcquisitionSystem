@@ -13,11 +13,14 @@ const int RECEIVER_PIN = 2;
 
 const int SERVO_PIN_1 = 3;
 const int SERVO_PIN_2 = 4;
-const int SERVO_START = 30;
-const int SERVO_END = 120;
+const int SERVO_START = 120;
+const int SERVO_END = 30;
 
 
 // LED Setup
 const int LED_PIN = 13;
+
+// Alt Baro Setup
+const int BARO_NUM_READINGS = 20;
 
 #endif
