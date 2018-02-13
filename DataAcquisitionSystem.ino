@@ -11,6 +11,7 @@
 
 #include "Data.h"
 #include "GpsData.h"
+#include "Variables.h"
 
 #include <Adafruit_BNO055.h>
 #include <Adafruit_MPL3115A2.h>
@@ -51,8 +52,6 @@ enum MessageType {
   GyroAccelMessage = 2,
   DMessage = 3
 };
-
-float base_alt = 0;
 
 // Setup Function
 
@@ -100,6 +99,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   Serial.println("Started");
 
+  //Loop for setting MPL3115A2 baseline
   int i;
   for(i = 0; i < BARO_NUM_READINGS; ++i)
   {
@@ -139,15 +139,15 @@ void loop() {
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
   // Otherwise, this may cause problems with the GPS
   
-  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-//  long dropPulse = 0;
+//  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+  long dropPulse = 0;
     
   if (dropPulse < 1000) {
     dropServo_1.write(SERVO_END);
     dropServo_2.write(SERVO_END);
     
     dropTime = millis();
-    dropAlt = data->getAltitude();
+    dropAlt = cur_alt;
   }
   else {
     dropServo_1.write(SERVO_START);
@@ -158,6 +158,7 @@ void loop() {
   if (millis() - lastLoopTime > DELAY_TIME) {
     // Update data object and get new airspeed analog value
     data->update();
+    updateBNO055();
     airspeed = analogRead(ANALOG_PIN);
 
     // Set the new LED state
@@ -173,12 +174,18 @@ void loop() {
 
     // Write other messages for user
     writeData(StandardMessage);
-    writeData(GyroAccelMessage);    
+    writeData(GyroAccelMessage);
+    // Transmit D message
+    writeData(DMessage);    
   }
-  
+
+  // Loop for MPL3115A2
   if(millis() - lastLoopTime_2 >= 1000)
   {
-    writeData(DMessage);
+    // Read in altitude, store in cur_alt
+    cur_alt = (baro.getAltitude() - base_alt);
+
+    // Reset timer
     lastLoopTime_2 = millis();
   }
 }
@@ -239,8 +246,6 @@ void writeData(MessageType m) {
   } else if (m == GyroAccelMessage) {
 
     // C,MX2,MILLIS,GYROX,GYROY,GYROZ,ACCELX,ACCELY,ACCELZ
-    imu::Vector<3> accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-    imu::Vector<3> gyros = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
     
     message += "C,";
     message += AIRCRAFT_ID;
@@ -266,12 +271,19 @@ void writeData(MessageType m) {
     message += DELIN;
     message += millis();
     message += DELIN;
-    message += (baro.getAltitude() - base_alt);
+    message += cur_alt;
   }
 
   message += ENDL;
   
   Serial.println(message);
   xbeeSerial->print(message);
+}
+
+// Updates BNO055 IMU values
+void updateBNO055()
+{
+    accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
+    gyros = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 }
 
