@@ -180,10 +180,19 @@ void loop() {
   }
 
   // Loop for MPL3115A2
+  // MPL3115A2 does not read more than once per second without annoying code
+  // Reading it as the same time as everything else causes delays
   if(millis() - lastLoopTime_2 >= 1000)
   {
     // Read in altitude, store in cur_alt
     cur_alt = (baro.getAltitude() - base_alt);
+    if(cur_alt < 0)
+    {
+      Serial.println(cur_alt);
+      //base_alt = base_alt - (abs(cur_alt)/zero_count);
+      //++zero_count;
+      cur_alt = 0;
+    }
 
     // Reset timer
     lastLoopTime_2 = millis();
@@ -276,11 +285,12 @@ void writeData(MessageType m) {
 
   message += ENDL;
   
-  Serial.println(message);
+  //Serial.println(message);
   xbeeSerial->print(message);
 }
 
-// Updates BNO055 IMU values
+// Modifies: accel and gyros vectors
+// Effects: Updates BNO055 IMU values
 void updateBNO055()
 {
     accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);

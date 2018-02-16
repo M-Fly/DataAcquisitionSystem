@@ -8,11 +8,12 @@
 // Base Altitudes
 float base_alt = 0;
 float gps_base = 0;
+int zero_count = 1;
 
 // Current Altitude
 float cur_alt = -1;
 
-// Acceleration and Gyro values
+// Acceleration and Gyro values. Vector carries x, y, and z values
 imu::Vector<3> accel;
 imu::Vector<3> gyros;
 
