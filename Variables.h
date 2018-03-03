@@ -8,7 +8,7 @@
 // Base Altitudes
 float base_alt = 0;
 float gps_base = 0;
-int zero_count = 1;
+int zero_count = 2;
 
 // Current Altitude
 float cur_alt = -1;
@@ -43,3 +43,4 @@ float AYavg = 0;                   //Average for AccelY
 float AZavg = 0;                   //Average for AccelZ
 
 #endif
+

@@ -21,6 +21,7 @@ const int SERVO_END = 30;
 const int LED_PIN = 13;
 
 // Alt Baro Setup
-const int BARO_NUM_READINGS = 20;
+const int BARO_NUM_READINGS = 5;
 
 #endif
+

@@ -100,6 +100,11 @@ void setup() {
   Serial.println("Started");
 
   //Loop for setting MPL3115A2 baseline
+  //Throw away first 3 readings
+  for(int j = 0; j < 3; ++j)
+  {
+    baro.getAltitude();
+  }
   int i;
   for(i = 0; i < BARO_NUM_READINGS; ++i)
   {
@@ -138,11 +143,11 @@ void loop() {
   
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
   // Otherwise, this may cause problems with the GPS
-  
+  long dropPulse = 0;  
 //  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-  long dropPulse = 0;
+
     
-  if (dropPulse < 1000) {
+  if (dropPulse > 1000) {
     dropServo_1.write(SERVO_END);
     dropServo_2.write(SERVO_END);
     
@@ -181,7 +186,7 @@ void loop() {
 
   // Loop for MPL3115A2
   // MPL3115A2 does not read more than once per second without annoying code
-  // Reading it as the same time as everything else causes delays
+  // Reading it at the same time as everything else causes delays
   if(millis() - lastLoopTime_2 >= 1000)
   {
     // Read in altitude, store in cur_alt
@@ -191,7 +196,17 @@ void loop() {
       Serial.println(cur_alt);
       //base_alt = base_alt - (abs(cur_alt)/zero_count);
       //++zero_count;
+      if(cur_alt < -1)
+      {
+        base_alt = base_alt - 1;
+      }
+      
       cur_alt = 0;
+    }
+    else if(data->getAltitude() < 0)
+    {
+      cur_alt /= 2;
+      base_alt = base_alt + (cur_alt/2);
     }
 
     // Reset timer
@@ -296,4 +311,5 @@ void updateBNO055()
     accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
     gyros = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 }
+
 

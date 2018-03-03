@@ -664,3 +664,4 @@ byte Adafruit_LSM303::read8(byte address, byte reg)
 
   return value;
 }
+

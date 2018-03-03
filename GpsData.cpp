@@ -72,3 +72,4 @@ char GpsData::getGpsSystem() const {
   return system;
 }
 
+
