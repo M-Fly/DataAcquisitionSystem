@@ -25,6 +25,7 @@ GpsData gps;
 Adafruit_BNO055 bno = Adafruit_BNO055();
 Adafruit_MPL3115A2 baro = Adafruit_MPL3115A2();
 bool DMESSAGE = true;
+bool FLIGHTMODE = false;
 
 // Serial Configuration
 
@@ -72,6 +73,7 @@ void setup() {
 
   // Initiate Servos
   pinMode(RECEIVER_PIN, INPUT);
+  //pinMode(MODE_PIN, INPUT);
   
   dropServo_1.attach(SERVO_PIN_1);
   dropServo_1.write(SERVO_START);
@@ -143,16 +145,35 @@ void loop() {
   
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
   // Otherwise, this may cause problems with the GPS
-  long dropPulse = 0;  
-//  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+  //long dropPulse = 0;  
+  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+  //long modePulse = pulseIn(MODE_PIN, HIGH);
 
-    
+  //Serial.println(modePulse);
+  //Serial.println(FLIGHTMODE);
+  //Serial.println(data->getAltitude());
+  //if (modePulse > 1000)
+  //{
+  //  FLIGHTMODE = true;
+  //}
+  
   if (dropPulse > 1000) {
-    dropServo_1.write(SERVO_END);
-    dropServo_2.write(SERVO_END);
+    /*if ((FLIGHTMODE == true) && (data->getAltitude() > 25))
+    {
+      dropServo_1.write(SERVO_END);
+      dropServo_2.write(SERVO_END);
     
-    dropTime = millis();
-    dropAlt = cur_alt;
+      dropTime = millis();
+      dropAlt = cur_alt;
+    }*/
+    //else if (FLIGHTMODE == false)
+    //{
+      dropServo_1.write(SERVO_END);
+      dropServo_2.write(SERVO_END);
+
+      dropTime = millis();
+      dropAlt = cur_alt;
+    //}
   }
   else {
     dropServo_1.write(SERVO_START);
@@ -193,7 +214,7 @@ void loop() {
     cur_alt = (baro.getAltitude() - base_alt);
     if(cur_alt < 0)
     {
-      Serial.println(cur_alt);
+      //Serial.println(cur_alt);
       //base_alt = base_alt - (abs(cur_alt)/zero_count);
       //++zero_count;
       if(cur_alt < -1)

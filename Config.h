@@ -10,11 +10,12 @@ const char AIRCRAFT_ID[] = "MX";
 // Pins for Input/Output
 const int ANALOG_PIN = 0;
 const int RECEIVER_PIN = 2;
+const int MODE_PIN = 12;
 
 const int SERVO_PIN_1 = 3;
 const int SERVO_PIN_2 = 4;
-const int SERVO_START = 120;
-const int SERVO_END = 30;
+const int SERVO_START = 30;
+const int SERVO_END = 120;
 
 
 // LED Setup
