@@ -43,6 +43,9 @@ Servo dropServo_2;
 
 int dropAlt = -1;
 long dropTime = -1;
+// CDA drop variables
+int dropAlt_CDA = -1; 
+long dropTime_CDA = -1; 
 
 // Time Constants for Data Collection
 const int DELAY_TIME = 1000 / TRANSMISSION_FREQUENCY_HERTZ; // For Loop
@@ -74,12 +77,18 @@ void setup() {
   // Initiate Servos
   pinMode(RECEIVER_PIN, INPUT);
   //pinMode(MODE_PIN, INPUT);
+  pinMode(RECIEVER_PIN_CDA, INPUT)
   
   dropServo_1.attach(SERVO_PIN_1);
   dropServo_1.write(SERVO_START);
 
   dropServo_2.attach(SERVO_PIN_2);
   dropServo_2.write(SERVO_START);
+
+  //Set up CDA Servos
+  dropServo_CDA.attach(SERVO_PIN_CDA);
+  dropServo_CDA.write(SERVO_START_CDA);
+  
 
   //Set up bno
   if(!bno.begin())
@@ -147,6 +156,7 @@ void loop() {
   // Otherwise, this may cause problems with the GPS
   //long dropPulse = 0;  
   long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+  long dropPulse_CDA = pulseIN(RECEIVER_PIN_CDA, HIGH);
   //long modePulse = pulseIn(MODE_PIN, HIGH);
 
   //Serial.println(modePulse);
@@ -156,7 +166,8 @@ void loop() {
   //{
   //  FLIGHTMODE = true;
   //}
-  
+
+  // Internal Payloads
   if (dropPulse > 1000) {
     /*if ((FLIGHTMODE == true) && (data->getAltitude() > 25))
     {
@@ -178,6 +189,17 @@ void loop() {
   else {
     dropServo_1.write(SERVO_START);
     dropServo_2.write(SERVO_START);
+  }
+
+  // Gliders
+  if (dropPulse_CDA > 1500)
+  {
+    dropServo_CDA.write(SERVO_END_CDA);
+    dropAlt_CDA = cur_alt;
+    dropTime_CDA = millis(); 
+  } else
+  {
+    dropServo_CDA.write(SERVO_START_CDA);
   }
   
   // Blink LED and Write Data to Serial regularly
@@ -245,8 +267,8 @@ void writeData(MessageType m) {
   
   if (m == StandardMessage) {
 
-    // A,MX2,MILLIS,ALT_BARO,ANALOG_PITOT,PRESS,TEMP,DROP_TIME,DROP_ALT
-    // Drop time and altitude will be -1 until drop.
+    // A,MX2,MILLIS,ALT_BARO,ANALOG_PITOT,PRESS,TEMP,DROP_TIME,DROP_ALT,DROP_TIME_CDA, DROP_ALT_CDA
+    // Drop times and altitudes will be -1 until drop.
     
     message += "A,";
     message += AIRCRAFT_ID;
@@ -264,6 +286,10 @@ void writeData(MessageType m) {
     message += dropTime;
     message += DELIN;
     message += dropAlt;
+    message += DELIN;
+    message += dropTime_CDA; 
+    message += DELIN;
+    message += dropAlt_CDA; 
     
   } else if (m == GpsMessage) {
 
@@ -332,5 +358,3 @@ void updateBNO055()
     accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
     gyros = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 }
-
-
