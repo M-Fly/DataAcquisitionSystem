@@ -40,6 +40,7 @@ int airspeed = 0;
 
 Servo dropServo_1;
 Servo dropServo_2;
+Servo dropServo_CDA;
 
 int dropAlt = -1;
 long dropTime = -1;
@@ -77,7 +78,7 @@ void setup() {
   // Initiate Servos
   pinMode(RECEIVER_PIN, INPUT);
   //pinMode(MODE_PIN, INPUT);
-  pinMode(RECIEVER_PIN_CDA, INPUT)
+  pinMode(RECEIVER_PIN_CDA, INPUT);
   
   dropServo_1.attach(SERVO_PIN_1);
   dropServo_1.write(SERVO_START);
@@ -156,7 +157,7 @@ void loop() {
   // Otherwise, this may cause problems with the GPS
   //long dropPulse = 0;  
   long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-  long dropPulse_CDA = pulseIN(RECEIVER_PIN_CDA, HIGH);
+  long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH);
   //long modePulse = pulseIn(MODE_PIN, HIGH);
 
   //Serial.println(modePulse);
