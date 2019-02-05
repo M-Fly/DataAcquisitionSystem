@@ -22,7 +22,7 @@
 
 Data *data = 0;
 GpsData gps;
-Adafruit_BNO055 bno = Adafruit_BNO055();
+Adafruit_BNO055 bno = Adafruit_BNO055();             // Creates Barometer and IMU objects!
 Adafruit_MPL3115A2 baro = Adafruit_MPL3115A2();
 bool DMESSAGE = true;
 bool FLIGHTMODE = false;
@@ -73,7 +73,7 @@ void setup() {
   // XBee Serial Port
   xbeeSerial->begin(38400);
 
-  data = new Data();
+ // data = new Data();
 
   // Initiate Servos
   pinMode(RECEIVER_PIN, INPUT);
@@ -169,7 +169,9 @@ void loop() {
   //}
 
   // Internal Payloads
-  if (dropPulse > 1000) {
+
+
+  if (dropPulse > 1200) {  // Channel 3 on Futaba 
     /*if ((FLIGHTMODE == true) && (data->getAltitude() > 25))
     {
       dropServo_1.write(SERVO_END);
@@ -193,7 +195,7 @@ void loop() {
   }
 
   // Gliders
-  if (dropPulse_CDA > 1500)
+  if (dropPulse_CDA > 1550)
   {
     dropServo_CDA.write(SERVO_END_CDA);
     dropAlt_CDA = cur_alt;
@@ -206,7 +208,7 @@ void loop() {
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
     // Update data object and get new airspeed analog value
-    data->update();
+//    data->update();
     updateBNO055();
     airspeed = analogRead(ANALOG_PIN);
 
@@ -229,34 +231,34 @@ void loop() {
   }
 
   // Loop for MPL3115A2
-  // MPL3115A2 does not read more than once per second without annoying code
-  // Reading it at the same time as everything else causes delays
-  if(millis() - lastLoopTime_2 >= 1000)
-  {
-    // Read in altitude, store in cur_alt
-    cur_alt = (baro.getAltitude() - base_alt);
-    if(cur_alt < 0)
-    {
-      //Serial.println(cur_alt);
-      //base_alt = base_alt - (abs(cur_alt)/zero_count);
-      //++zero_count;
-      if(cur_alt < -1)
-      {
-        base_alt = base_alt - 1;
-      }
+        // MPL3115A2 does not read more than once per second without annoying code
+        // Reading it at the same time as everything else causes delays
+        if(millis() - lastLoopTime_2 >= 1000)
+        {
+          // Read in altitude, store in cur_alt
+          cur_alt = (baro.getAltitude() - base_alt);
+          if(cur_alt < 0)
+          {
+            //Serial.println(cur_alt);
+            //base_alt = base_alt - (abs(cur_alt)/zero_count);
+            //++zero_count;
+            if(cur_alt < -1)
+            {
+              base_alt = base_alt - 1;
+            }
+            
+            cur_alt = 0;
+          }
+          else if(data->getAltitude() < 0)
+          {
+            cur_alt /= 2;
+            base_alt = base_alt + (cur_alt/2);
+          }
       
-      cur_alt = 0;
-    }
-    else if(data->getAltitude() < 0)
-    {
-      cur_alt /= 2;
-      base_alt = base_alt + (cur_alt/2);
-    }
-
-    // Reset timer
-    lastLoopTime_2 = millis();
-  }
-}
+          // Reset timer
+          lastLoopTime_2 = millis();
+        }
+ }
 
 void writeData(MessageType m) {
   // TODO: Replace all message += with Serial2.print, no need to print to usb debugging for final version
@@ -335,7 +337,9 @@ void writeData(MessageType m) {
     message += accel.y();
     message += DELIN;
     message += accel.z();
-  } else if (m == DMessage) {
+    } 
+    
+  else if (m == DMessage) {
     // D,MX,MILLIS,BAROALT
 
     message += "D,";
@@ -348,7 +352,7 @@ void writeData(MessageType m) {
 
   message += ENDL;
   
-  //Serial.println(message);
+  Serial.println(message);
   xbeeSerial->print(message);
 }
 

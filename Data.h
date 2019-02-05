@@ -50,6 +50,7 @@ private:
   Adafruit_LSM303_Accel_Unified accel;
   Adafruit_L3GD20_Unified gyro;
   Adafruit_LSM303_Mag_Unified mag;
+  
 
 };
 
