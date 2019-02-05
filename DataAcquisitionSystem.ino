@@ -13,17 +13,12 @@
 #include "GpsData.h"
 #include "Variables.h"
 
-#include <Adafruit_BNO055.h>
-#include <Adafruit_MPL3115A2.h>
-
 #include "Config.h"
 
 // Data Collection
 
 Data *data = 0;
 GpsData gps;
-Adafruit_BNO055 bno = Adafruit_BNO055();
-Adafruit_MPL3115A2 baro = Adafruit_MPL3115A2();
 bool DMESSAGE = true;
 bool FLIGHTMODE = false;
 
@@ -40,6 +35,7 @@ int airspeed = 0;
 
 Servo dropServo_1;
 Servo dropServo_2;
+Servo dropServo_CDA;
 
 int dropAlt = -1;
 long dropTime = -1;
@@ -77,7 +73,7 @@ void setup() {
   // Initiate Servos
   pinMode(RECEIVER_PIN, INPUT);
   //pinMode(MODE_PIN, INPUT);
-  pinMode(RECIEVER_PIN_CDA, INPUT)
+  pinMode(RECEIVER_PIN_CDA, INPUT);
   
   dropServo_1.attach(SERVO_PIN_1);
   dropServo_1.write(SERVO_START);
@@ -88,38 +84,23 @@ void setup() {
   //Set up CDA Servos
   dropServo_CDA.attach(SERVO_PIN_CDA);
   dropServo_CDA.write(SERVO_START_CDA);
-  
-
-  //Set up bno
-  if(!bno.begin())
-  {
-    Serial.print("No BNO055");
-  }
-
-  //Set up baro
-  if (!baro.begin())
-  {
-    Serial.println("No MPL3115A2");
-    DMESSAGE = false;
-    return;
-  }
-  
-  bno.setExtCrystalUse(true);
 
   // Final Steps
   pinMode(LED_PIN, OUTPUT);
-  Serial.println("Started");
 
   //Loop for setting MPL3115A2 baseline
   //Throw away first 3 readings
+    Serial.println("Throwing away");
   for(int j = 0; j < 3; ++j)
   {
-    baro.getAltitude();
+    data->update();
   }
   int i;
+    Serial.println("Calibrating barometer");
   for(i = 0; i < BARO_NUM_READINGS; ++i)
   {
-    base_alt += baro.getAltitude();
+    data->update();
+    base_alt += data->getAltitude();
 //    Serial.print(i);
 //    Serial.print(" ");
 //    Serial.print(base_alt);
@@ -129,6 +110,7 @@ void setup() {
 //  Serial.print("Base Alt: ");
 //  Serial.print(base_alt);
 //  Serial.println("");
+  Serial.println("Started");
 }
 
 void loop() {
@@ -156,7 +138,7 @@ void loop() {
   // Otherwise, this may cause problems with the GPS
   //long dropPulse = 0;  
   long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-  long dropPulse_CDA = pulseIN(RECEIVER_PIN_CDA, HIGH);
+  long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH);
   //long modePulse = pulseIn(MODE_PIN, HIGH);
 
   //Serial.println(modePulse);
@@ -206,7 +188,6 @@ void loop() {
   if (millis() - lastLoopTime > DELAY_TIME) {
     // Update data object and get new airspeed analog value
     data->update();
-    updateBNO055();
     airspeed = analogRead(ANALOG_PIN);
 
     // Set the new LED state
@@ -233,7 +214,7 @@ void loop() {
   if(millis() - lastLoopTime_2 >= 1000)
   {
     // Read in altitude, store in cur_alt
-    cur_alt = (baro.getAltitude() - base_alt);
+    cur_alt = (data->getAltitude() - base_alt);
     if(cur_alt < 0)
     {
       //Serial.println(cur_alt);
@@ -323,17 +304,17 @@ void writeData(MessageType m) {
     message += DELIN;
     message += millis();
     message += DELIN;
-    message += gyros.x();
+    message += data->getGyroZ();
     message += DELIN;
-    message += gyros.y();
+    message += data->getGyroY();
     message += DELIN;
-    message += gyros.z();
+    message += data->getGyroZ();
     message += DELIN;
-    message += accel.x();
+    message += data->getAccelX();
     message += DELIN;
-    message += accel.y();
+    message += data->getAccelY();
     message += DELIN;
-    message += accel.z();
+    message += data->getAccelZ();
   } else if (m == DMessage) {
     // D,MX,MILLIS,BAROALT
 
@@ -347,14 +328,6 @@ void writeData(MessageType m) {
 
   message += ENDL;
   
-  //Serial.println(message);
+  Serial.println(message);
   xbeeSerial->print(message);
-}
-
-// Modifies: accel and gyros vectors
-// Effects: Updates BNO055 IMU values
-void updateBNO055()
-{
-    accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-    gyros = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 }
