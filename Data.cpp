@@ -8,35 +8,19 @@ Updated Jan 5, 2017 - Ian O'Rourke
 
 #include "Data.h"
 
-Data::Data() /* : accel(30301), mag(30302), gyro(20), bmp(18001) */ {
-  // if (!accel.begin()) {
-  //   Serial.println("No Accel");
-  // }
-  // if (!mag.begin()) {
-  //   Serial.println("No Mag");
-  // }
-  // if (!gyro.begin()) {
-  //   Serial.println("No Gyro");
-  // }
-  // if (!bmp.begin()) {
-  //   Serial.println("No Press");
-  // }
-  
-  //Set up bno
-  if(!bno.begin())
-  {
-    Serial.print("No BNO055");
+Data::Data() : accel(30301), mag(30302), gyro(20), bmp(18001) {
+  if (!accel.begin()) {
+    Serial.println("No Accel");
   }
-
-  //Set up baro
-  if (!baro.begin())
-  {
-    Serial.println("No MPL3115A2");
-    // DMESSAGE = false;
-    // return;
+  if (!mag.begin()) {
+    Serial.println("No Mag");
   }
-
-  bno.setExtCrystalUse(true);
+  if (!gyro.begin()) {
+    Serial.println("No Gyro");
+  }
+  if (!bmp.begin()) {
+    Serial.println("No Press");
+  }
 
   update();
   baseline = getPressure();
@@ -48,15 +32,15 @@ Should be called immediately after update();
 Returns: AcccelX/AccelY/AccelZ as a float
 */
 float Data::getAccelX() const {
-  return accel.x();
+  return accelX;
 }
 
 float Data::getAccelY() const {
-  return accel.y();
+  return accelY;
 }
 
 float Data::getAccelZ() const {
-  return accel.z();
+  return accelZ;
 }
 
 /*
@@ -65,15 +49,15 @@ Should be called immediately after update();
 Returns: gyroX/gyroY/gyroZ as a float
 */
 float Data::getGyroX() const {
-  return gyros.x();
+  return gyroX;
 }
 
 float Data::getGyroY() const {
-  return gyros.y();
+  return gyroY;
 }
 
 float Data::getGyroZ() const {
-  return gyros.z();
+  return gyroZ;
 }
 
 /*
@@ -129,20 +113,20 @@ this should always be called prior to accessing any of the values
 */
 void Data::update() {
   // Get Acceleration
-  // accel.getEvent(&accelEvent);
-  // accelX = accelEvent.acceleration.x;
-  // accelY = accelEvent.acceleration.y;
-  // accelZ = accelEvent.acceleration.z;
+  accel.getEvent(&accelEvent);
+  accelX = accelEvent.acceleration.x;
+  accelY = accelEvent.acceleration.y;
+  accelZ = accelEvent.acceleration.z;
 
-  // gyro.getEvent(&gyroEvent);
-  // gyroX = gyroEvent.gyro.x;
-  // gyroY = gyroEvent.gyro.y;
-  // gyroZ = gyroEvent.gyro.z;
+  gyro.getEvent(&gyroEvent);
+  gyroX = gyroEvent.gyro.x;
+  gyroY = gyroEvent.gyro.y;
+  gyroZ = gyroEvent.gyro.z;
   
-  // mag.getEvent(&magEvent);
-  // magX = magEvent.magnetic.x;
-  // magY = magEvent.magnetic.y;
-  // magZ = magEvent.magnetic.z;
+  mag.getEvent(&magEvent);
+  magX = magEvent.magnetic.x;
+  magY = magEvent.magnetic.y;
+  magZ = magEvent.magnetic.z;
 
   /*
   if (dof.fusionGetOrientation(&accelEvent, &magEvent, &orientation)) {
@@ -152,17 +136,10 @@ void Data::update() {
   }
   */
   
-  // bmp.getPressure(&pressure);
-  // bmp.getTemperature(&temperature);
+  bmp.getPressure(&pressure);
+  bmp.getTemperature(&temperature);
   
-  // altitude = bmp.pressureToAltitude(baseline, pressure);
-
-  // Serial.println("Update!");
-  
-  accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-  gyros = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-
-  altitude = baro.getAltitude();
+  altitude = bmp.pressureToAltitude(baseline, pressure);
 }
 
 

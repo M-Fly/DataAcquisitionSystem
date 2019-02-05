@@ -5,9 +5,10 @@
 #include <Wire.h>
 
 #include <Adafruit_Sensor.h>
-// #include "Variables.h"
-#include <Adafruit_BNO055.h>
-#include <Adafruit_MPL3115A2.h>
+
+#include <Adafruit_BMP085_U.h> // Barometer sensor library
+#include "MFly_LSM303_U.h" // Accel/Magneto sensor library
+#include <Adafruit_L3GD20_U.h> // Gyroscope sensor library
 
 class Data {
 public:
@@ -43,16 +44,10 @@ private:
   float magX,   magY,   magZ;
   float baseline, pressure, temperature, altitude;
 
-  imu::Vector<3> accel;
-  imu::Vector<3> gyros;
-
-  // Adafruit_BMP085_Unified bmp;
-  // Adafruit_LSM303_Accel_Unified accel;
-  // Adafruit_L3GD20_Unified gyro;
-  // Adafruit_LSM303_Mag_Unified mag;
-  
-  Adafruit_BNO055 bno/*  = Adafruit_BNO055() */;
-  Adafruit_MPL3115A2 baro/*  = Adafruit_MPL3115A2() */;
+  Adafruit_BMP085_Unified bmp;
+  Adafruit_LSM303_Accel_Unified accel;
+  Adafruit_L3GD20_Unified gyro;
+  Adafruit_LSM303_Mag_Unified mag;
 };
 
 #endif
