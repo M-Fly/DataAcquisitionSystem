@@ -21,7 +21,7 @@ const int SERVO_END = 120;
 const int SERVO_PIN_CDA = 10; 
 const int RECEIVER_PIN_CDA = 11; // Receiver Pin for CDA - Channel 2 on Futaba reciever - Up on right joystick (middle is less than 1500)
 const int SERVO_START_CDA = 60;
-const int SERVO_END_CDA = 120; 
+const int SERVO_END_CDA = 150; 
 
 
 
