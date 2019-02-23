@@ -145,7 +145,7 @@ void loop() {
 
   while (gpsSerial->available()) {
     char c = gpsSerial->read();
-    
+
     if (gps.encode(c)) {
       newGPSData = true;
     }
@@ -155,9 +155,10 @@ void loop() {
   
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
   // Otherwise, this may cause problems with the GPS
-  //long dropPulse = 0;  
-  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-  long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH);
+ //long dropPulse = 0;  
+// long dropPulse_CDA = 0; 
+long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH);
   //long modePulse = pulseIn(MODE_PIN, HIGH);
 
   //Serial.println(modePulse);
@@ -220,7 +221,7 @@ void loop() {
     // Write GPS data if new data exists
     if (newGPSData) {
       writeData(GpsMessage);
-      newGPSData = false;
+     newGPSData = false;
     }
 
     // Write other messages for user
@@ -278,13 +279,13 @@ void writeData(MessageType m) {
     message += DELIN;
     message += millis();
     message += DELIN;
-    message += data->getAltitude();
+    message += cur_alt;
     message += DELIN;
     message += airspeed;
     message += DELIN;
-    message += data->getPressure();
+    message += 0;
     message += DELIN;
-    message += data->getTemperature();
+    message += 0;
     message += DELIN;
     message += dropTime;
     message += DELIN;
@@ -353,6 +354,7 @@ void writeData(MessageType m) {
   message += ENDL;
   
   Serial.println(message);
+
   xbeeSerial->print(message);
 }
 

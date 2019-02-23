@@ -71,5 +71,3 @@ int GpsData::getHDOP() const {
 char GpsData::getGpsSystem() const {
   return system;
 }
-
-
