@@ -12,7 +12,7 @@
 #include "Data.h"
 #include "GpsData.h"
 #include "Variables.h"
-
+#include "HardwareSerial.h"
 #include <Adafruit_BNO055.h>
 #include <Adafruit_MPL3115A2.h>
 
@@ -41,6 +41,8 @@ int airspeed = 0;
 Servo dropServo_1;
 Servo dropServo_2;
 Servo dropServo_CDA;
+Servo dropServo_CDA2; 
+Servo dropServo_CDA3; 
 
 int dropAlt = -1;
 long dropTime = -1;
@@ -89,7 +91,12 @@ void setup() {
   //Set up CDA Servos
   dropServo_CDA.attach(SERVO_PIN_CDA);
   dropServo_CDA.write(SERVO_START_CDA);
-  
+
+  dropServo_CDA2.attach(SERVO_PIN_CDA2);
+  dropServo_CDA2.write(SERVO_START_CDA);
+
+  dropServo_CDA3.attach(SERVO_PIN_CDA3);
+  dropServo_CDA3.write(SERVO_START_CDA);
 
   //Set up bno
   if(!bno.begin())
@@ -149,6 +156,7 @@ void loop() {
     if (gps.encode(c)) {
       newGPSData = true;
     }
+
   }
 
   // Read in serial pulse from receiver
@@ -199,11 +207,16 @@ long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH);
   if (dropPulse_CDA > 1550)
   {
     dropServo_CDA.write(SERVO_END_CDA);
+    dropServo_CDA2.write(SERVO_END_CDA);
+    dropServo_CDA3.write(SERVO_END_CDA);
+    
     dropAlt_CDA = cur_alt;
     dropTime_CDA = millis(); 
   } else
   {
     dropServo_CDA.write(SERVO_START_CDA);
+    dropServo_CDA2.write(SERVO_START_CDA);
+    dropServo_CDA3.write(SERVO_START_CDA);
   }
   
   // Blink LED and Write Data to Serial regularly
