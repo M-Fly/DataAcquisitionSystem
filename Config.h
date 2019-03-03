@@ -17,6 +17,10 @@ const int SERVO_PIN_2 = 4;
 const int SERVO_START = 30;
 const int SERVO_END = 120;
 
+const int SERVO_PIN_CDA = 6;
+const int RECEIVER_PIN_CDA = 7;
+const int SERVO_START_CDA = 60;
+const int SERVO_END_CDA = 150; 
 
 // LED Setup
 const int LED_PIN = 13;
@@ -25,4 +29,3 @@ const int LED_PIN = 13;
 const int BARO_NUM_READINGS = 5;
 
 #endif
-

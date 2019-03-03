@@ -40,9 +40,13 @@ int airspeed = 0;
 
 Servo dropServo_1;
 Servo dropServo_2;
+Servo dropServo_CDA;
 
 int dropAlt = -1;
 long dropTime = -1;
+
+int dropAlt_CDA = -1;
+long dropTime_CDA = -1;
 
 // Time Constants for Data Collection
 const int DELAY_TIME = 1000 / TRANSMISSION_FREQUENCY_HERTZ; // For Loop
@@ -69,11 +73,12 @@ void setup() {
   // XBee Serial Port
   xbeeSerial->begin(38400);
 
-  data = new Data();
+ // data = new Data();
 
   // Initiate Servos
   pinMode(RECEIVER_PIN, INPUT);
   //pinMode(MODE_PIN, INPUT);
+  pinMode(RECEIVER_PIN_CDA, INPUT);
   
   dropServo_1.attach(SERVO_PIN_1);
   dropServo_1.write(SERVO_START);
@@ -81,6 +86,9 @@ void setup() {
   dropServo_2.attach(SERVO_PIN_2);
   dropServo_2.write(SERVO_START);
 
+  dropServo_CDA.attach(SERVO_PIN_CDA);
+  dropServo_CDA.write(SERVO_START_CDA);
+  
   //Set up bno
   if(!bno.begin())
   {
@@ -147,6 +155,7 @@ void loop() {
   // Otherwise, this may cause problems with the GPS
   //long dropPulse = 0;  
   long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+ long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH);
   //long modePulse = pulseIn(MODE_PIN, HIGH);
 
   //Serial.println(modePulse);
@@ -183,7 +192,7 @@ void loop() {
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
     // Update data object and get new airspeed analog value
-    data->update();
+   // data->update();
     updateBNO055();
     airspeed = analogRead(ANALOG_PIN);
 
@@ -253,13 +262,13 @@ void writeData(MessageType m) {
     message += DELIN;
     message += millis();
     message += DELIN;
-    message += data->getAltitude();
+    message += cur_alt;
     message += DELIN;
     message += airspeed;
     message += DELIN;
-    message += data->getPressure();
+    message += 0;
     message += DELIN;
-    message += data->getTemperature();
+    message += 0;
     message += DELIN;
     message += dropTime;
     message += DELIN;
@@ -332,5 +341,3 @@ void updateBNO055()
     accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
     gyros = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 }
-
-
