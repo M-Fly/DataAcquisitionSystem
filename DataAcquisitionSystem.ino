@@ -165,8 +165,8 @@ void loop() {
   // Otherwise, this may cause problems with the GPS
  //long dropPulse = 0;  
 // long dropPulse_CDA = 0; 
-long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
-long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH);
+long dropPulse = pulseIn(RECEIVER_PIN, HIGH,25000);
+long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH,23000);
   //long modePulse = pulseIn(MODE_PIN, HIGH);
 
   //Serial.println(modePulse);
@@ -189,14 +189,13 @@ long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH);
       dropTime = millis();
       dropAlt = cur_alt;
     }*/
-    //else if (FLIGHTMODE == false)
-    //{
+
       dropServo_1.write(SERVO_END);
       dropServo_2.write(SERVO_END);
 
       dropTime = millis();
       dropAlt = cur_alt;
-    //}
+ 
   }
   else {
     dropServo_1.write(SERVO_START);
@@ -272,6 +271,7 @@ long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH);
           // Reset timer
           lastLoopTime_2 = millis();
         }
+    
  }
 
 void writeData(MessageType m) {
