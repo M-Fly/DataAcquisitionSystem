@@ -8,7 +8,7 @@
 
 #include <Servo.h>
 #include <Wire.h>
-
+#include "PWM.hpp"
 #include "Data.h"
 #include "GpsData.h"
 #include "Variables.h"
@@ -60,11 +60,14 @@ enum MessageType {
   DMessage = 3
 };
 
+PWM drop(2);
+PWM drop_CDA(3);
 // Setup Function
 
 void setup() {
   delay(500);
-  
+  drop.begin(true);
+  drop_CDA.begin(true);
   // Initiate USB Serial Port
   Serial.begin(57600);
   Serial.println("Starting");
@@ -165,8 +168,8 @@ void loop() {
   // Otherwise, this may cause problems with the GPS
  //long dropPulse = 0;  
 // long dropPulse_CDA = 0; 
-long dropPulse = pulseIn(RECEIVER_PIN, HIGH,25000);
-long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH,23000);
+long dropPulse = drop.getValue();
+long dropPulse_CDA = drop_CDA.getValue();
   //long modePulse = pulseIn(MODE_PIN, HIGH);
 
   //Serial.println(modePulse);
@@ -179,7 +182,7 @@ long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH,23000);
 
   // Internal Payloads
 
-
+Serial.println(dropPulse_CDA);
   if (dropPulse > 1200) {  // Channel 3 on Futaba 
     /*if ((FLIGHTMODE == true) && (data->getAltitude() > 25))
     {
@@ -203,7 +206,7 @@ long dropPulse_CDA = pulseIn(RECEIVER_PIN_CDA, HIGH,23000);
   }
 
   // Gliders
-  if (dropPulse_CDA > 1550)
+  if (dropPulse_CDA > 1600)
   {
     dropServo_CDA.write(SERVO_END_CDA);
     dropServo_CDA2.write(SERVO_END_CDA);
@@ -366,7 +369,7 @@ void writeData(MessageType m) {
 
   message += ENDL;
   
-  Serial.println(message);
+  //Serial.println(message);
 
   xbeeSerial->print(message);
 }
