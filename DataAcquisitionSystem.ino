@@ -182,7 +182,7 @@ long dropPulse_CDA = drop_CDA.getValue();
 
   // Internal Payloads
 
-Serial.println(dropPulse_CDA);
+// Serial.println(dropPulse_CDA);
   if (dropPulse > 1200) {  // Channel 3 on Futaba 
     /*if ((FLIGHTMODE == true) && (data->getAltitude() > 25))
     {
@@ -226,7 +226,7 @@ Serial.println(dropPulse_CDA);
     // Update data object and get new airspeed analog value
 //    data->update();
     updateBNO055();
-    airspeed = analogRead(ANALOG_PIN);
+    airspeed = analogRead(A0);
 
     // Set the new LED state
     lastLoopTime = millis();
@@ -369,9 +369,10 @@ void writeData(MessageType m) {
 
   message += ENDL;
   
-  //Serial.println(message);
+  Serial.println(message);
 
   xbeeSerial->print(message);
+
 }
 
 // Modifies: accel and gyros vectors
