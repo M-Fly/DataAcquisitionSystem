@@ -6,6 +6,8 @@
 
 #include <Adafruit_Sensor.h>
 
+#include <Adafruit_BNO055.h> // New IMU sensor library
+
 #include <Adafruit_BMP085_U.h> // Barometer sensor library
 #include "MFly_LSM303_U.h" // Accel/Magneto sensor library
 #include <Adafruit_L3GD20_U.h> // Gyroscope sensor library
@@ -48,8 +50,8 @@ private:
   Adafruit_LSM303_Accel_Unified accel;
   Adafruit_L3GD20_Unified gyro;
   Adafruit_LSM303_Mag_Unified mag;
+  
+
 };
 
 #endif
-
-

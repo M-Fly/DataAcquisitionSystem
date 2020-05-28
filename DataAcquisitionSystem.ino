@@ -8,11 +8,11 @@
 
 #include <Servo.h>
 #include <Wire.h>
-
+#include "PWM.hpp"
 #include "Data.h"
 #include "GpsData.h"
 #include "Variables.h"
-
+#include "HardwareSerial.h"
 #include <Adafruit_BNO055.h>
 #include <Adafruit_MPL3115A2.h>
 
@@ -22,7 +22,7 @@
 
 Data *data = 0;
 GpsData gps;
-Adafruit_BNO055 bno = Adafruit_BNO055();
+Adafruit_BNO055 bno = Adafruit_BNO055();             // Creates Barometer and IMU objects!
 Adafruit_MPL3115A2 baro = Adafruit_MPL3115A2();
 bool DMESSAGE = true;
 bool FLIGHTMODE = false;
@@ -40,9 +40,15 @@ int airspeed = 0;
 
 Servo dropServo_1;
 Servo dropServo_2;
+Servo dropServo_CDA;
+Servo dropServo_CDA2; 
+Servo dropServo_CDA3; 
 
 int dropAlt = -1;
 long dropTime = -1;
+// CDA drop variables
+int dropAlt_CDA = -1; 
+long dropTime_CDA = -1; 
 
 // Time Constants for Data Collection
 const int DELAY_TIME = 1000 / TRANSMISSION_FREQUENCY_HERTZ; // For Loop
@@ -54,11 +60,14 @@ enum MessageType {
   DMessage = 3
 };
 
+PWM drop(2);
+PWM drop_CDA(3);
 // Setup Function
 
 void setup() {
   delay(500);
-  
+  drop.begin(true);
+  drop_CDA.begin(true);
   // Initiate USB Serial Port
   Serial.begin(57600);
   Serial.println("Starting");
@@ -69,17 +78,28 @@ void setup() {
   // XBee Serial Port
   xbeeSerial->begin(38400);
 
-  data = new Data();
+ // data = new Data();
 
   // Initiate Servos
   pinMode(RECEIVER_PIN, INPUT);
   //pinMode(MODE_PIN, INPUT);
+  pinMode(RECEIVER_PIN_CDA, INPUT);
   
   dropServo_1.attach(SERVO_PIN_1);
   dropServo_1.write(SERVO_START);
 
   dropServo_2.attach(SERVO_PIN_2);
   dropServo_2.write(SERVO_START);
+
+  //Set up CDA Servos
+  dropServo_CDA.attach(SERVO_PIN_CDA);
+  dropServo_CDA.write(SERVO_START_CDA);
+
+  dropServo_CDA2.attach(SERVO_PIN_CDA2);
+  dropServo_CDA2.write(SERVO_START_CDA);
+
+  dropServo_CDA3.attach(SERVO_PIN_CDA3);
+  dropServo_CDA3.write(SERVO_START_CDA);
 
   //Set up bno
   if(!bno.begin())
@@ -135,18 +155,21 @@ void loop() {
 
   while (gpsSerial->available()) {
     char c = gpsSerial->read();
-    
+
     if (gps.encode(c)) {
       newGPSData = true;
     }
+
   }
 
   // Read in serial pulse from receiver
   
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!
   // Otherwise, this may cause problems with the GPS
-  //long dropPulse = 0;  
-  long dropPulse = pulseIn(RECEIVER_PIN, HIGH);
+ //long dropPulse = 0;  
+// long dropPulse_CDA = 0; 
+long dropPulse = drop.getValue();
+long dropPulse_CDA = drop_CDA.getValue();
   //long modePulse = pulseIn(MODE_PIN, HIGH);
 
   //Serial.println(modePulse);
@@ -156,8 +179,11 @@ void loop() {
   //{
   //  FLIGHTMODE = true;
   //}
-  
-  if (dropPulse > 1000) {
+
+  // Internal Payloads
+
+// Serial.println(dropPulse_CDA);
+  if (dropPulse > 1200) {  // Channel 3 on Futaba 
     /*if ((FLIGHTMODE == true) && (data->getAltitude() > 25))
     {
       dropServo_1.write(SERVO_END);
@@ -166,26 +192,41 @@ void loop() {
       dropTime = millis();
       dropAlt = cur_alt;
     }*/
-    //else if (FLIGHTMODE == false)
-    //{
+
       dropServo_1.write(SERVO_END);
       dropServo_2.write(SERVO_END);
 
       dropTime = millis();
       dropAlt = cur_alt;
-    //}
+ 
   }
   else {
     dropServo_1.write(SERVO_START);
     dropServo_2.write(SERVO_START);
   }
+
+  // Gliders
+  if (dropPulse_CDA > 1600)
+  {
+    dropServo_CDA.write(SERVO_END_CDA);
+    dropServo_CDA2.write(SERVO_END_CDA);
+    dropServo_CDA3.write(SERVO_END_CDA);
+    
+    dropAlt_CDA = cur_alt;
+    dropTime_CDA = millis(); 
+  } else
+  {
+    dropServo_CDA.write(SERVO_START_CDA);
+    dropServo_CDA2.write(SERVO_START_CDA);
+    dropServo_CDA3.write(SERVO_START_CDA);
+  }
   
   // Blink LED and Write Data to Serial regularly
   if (millis() - lastLoopTime > DELAY_TIME) {
     // Update data object and get new airspeed analog value
-    data->update();
+//    data->update();
     updateBNO055();
-    airspeed = analogRead(ANALOG_PIN);
+    airspeed = analogRead(A0);
 
     // Set the new LED state
     lastLoopTime = millis();
@@ -195,7 +236,7 @@ void loop() {
     // Write GPS data if new data exists
     if (newGPSData) {
       writeData(GpsMessage);
-      newGPSData = false;
+     newGPSData = false;
     }
 
     // Write other messages for user
@@ -206,34 +247,35 @@ void loop() {
   }
 
   // Loop for MPL3115A2
-  // MPL3115A2 does not read more than once per second without annoying code
-  // Reading it at the same time as everything else causes delays
-  if(millis() - lastLoopTime_2 >= 1000)
-  {
-    // Read in altitude, store in cur_alt
-    cur_alt = (baro.getAltitude() - base_alt);
-    if(cur_alt < 0)
-    {
-      //Serial.println(cur_alt);
-      //base_alt = base_alt - (abs(cur_alt)/zero_count);
-      //++zero_count;
-      if(cur_alt < -1)
-      {
-        base_alt = base_alt - 1;
-      }
+        // MPL3115A2 does not read more than once per second without annoying code
+        // Reading it at the same time as everything else causes delays
+        if(millis() - lastLoopTime_2 >= 1000)
+        {
+          // Read in altitude, store in cur_alt
+          cur_alt = (baro.getAltitude() - base_alt);
+          if(cur_alt < 0)
+          {
+            //Serial.println(cur_alt);
+            //base_alt = base_alt - (abs(cur_alt)/zero_count);
+            //++zero_count;
+            if(cur_alt < -1)
+            {
+              base_alt = base_alt - 1;
+            }
+            
+            cur_alt = 0;
+          }
+          else if(data->getAltitude() < 0)
+          {
+            cur_alt /= 2;
+            base_alt = base_alt + (cur_alt/2);
+          }
       
-      cur_alt = 0;
-    }
-    else if(data->getAltitude() < 0)
-    {
-      cur_alt /= 2;
-      base_alt = base_alt + (cur_alt/2);
-    }
-
-    // Reset timer
-    lastLoopTime_2 = millis();
-  }
-}
+          // Reset timer
+          lastLoopTime_2 = millis();
+        }
+    
+ }
 
 void writeData(MessageType m) {
   // TODO: Replace all message += with Serial2.print, no need to print to usb debugging for final version
@@ -245,25 +287,29 @@ void writeData(MessageType m) {
   
   if (m == StandardMessage) {
 
-    // A,MX2,MILLIS,ALT_BARO,ANALOG_PITOT,PRESS,TEMP,DROP_TIME,DROP_ALT
-    // Drop time and altitude will be -1 until drop.
+    // A,MX2,MILLIS,ALT_BARO,ANALOG_PITOT,PRESS,TEMP,DROP_TIME,DROP_ALT,DROP_TIME_CDA, DROP_ALT_CDA
+    // Drop times and altitudes will be -1 until drop.
     
     message += "A,";
     message += AIRCRAFT_ID;
     message += DELIN;
     message += millis();
     message += DELIN;
-    message += data->getAltitude();
+    message += cur_alt;
     message += DELIN;
     message += airspeed;
     message += DELIN;
-    message += data->getPressure();
+    message += 0;
     message += DELIN;
-    message += data->getTemperature();
+    message += 0;
     message += DELIN;
     message += dropTime;
     message += DELIN;
     message += dropAlt;
+    message += DELIN;
+    message += dropTime_CDA; 
+    message += DELIN;
+    message += dropAlt_CDA; 
     
   } else if (m == GpsMessage) {
 
@@ -308,7 +354,9 @@ void writeData(MessageType m) {
     message += accel.y();
     message += DELIN;
     message += accel.z();
-  } else if (m == DMessage) {
+    } 
+    
+  else if (m == DMessage) {
     // D,MX,MILLIS,BAROALT
 
     message += "D,";
@@ -321,8 +369,10 @@ void writeData(MessageType m) {
 
   message += ENDL;
   
-  //Serial.println(message);
+  Serial.println(message);
+
   xbeeSerial->print(message);
+
 }
 
 // Modifies: accel and gyros vectors
@@ -332,5 +382,3 @@ void updateBNO055()
     accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
     gyros = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
 }
-
-

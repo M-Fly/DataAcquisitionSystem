@@ -7,7 +7,7 @@ Updated Jan 5, 2017 - Ian O'Rourke
 */
 
 #include "Data.h"
-
+/*
 Data::Data() : accel(30301), mag(30302), gyro(20), bmp(18001) {
   if (!accel.begin()) {
     Serial.println("No Accel");
@@ -25,7 +25,7 @@ Data::Data() : accel(30301), mag(30302), gyro(20), bmp(18001) {
   update();
   baseline = getPressure();
 }
-
+*/
 /*
 Returns the (X/Y/Z) Value of the Accerlation
 Should be called immediately after update();
@@ -111,6 +111,7 @@ updates all of the sensor data to the most recent values
 calls the sensor's functions to access the values
 this should always be called prior to accessing any of the values
 */
+/*
 void Data::update() {
   // Get Acceleration
   accel.getEvent(&accelEvent);
@@ -135,11 +136,11 @@ void Data::update() {
     heading = (int) orientation.heading;
   }
   */
-  
+  /*
   bmp.getPressure(&pressure);
   bmp.getTemperature(&temperature);
   
   altitude = bmp.pressureToAltitude(baseline, pressure);
 }
 
-
+*/
