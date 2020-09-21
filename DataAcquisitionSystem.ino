@@ -73,8 +73,8 @@ void setup() {
   Serial.println("Starting");
 
   // GPS Serial Port
-  gpsSerial->begin(38400);
-
+  //gpsSerial->begin(38400);
+  gpsSerial->begin(9600);
   // XBee Serial Port
   xbeeSerial->begin(38400);
 
@@ -154,14 +154,15 @@ void loop() {
   if (millis() < (long)1000) return;
 
   while (gpsSerial->available()) {
+    //Serial.println("GPS DATA AVAILABLE");
     char c = gpsSerial->read();
-
+   // Serial.print((char)c);
+    
     if (gps.encode(c)) {
       newGPSData = true;
     }
 
   }
-
   // Read in serial pulse from receiver
   
   // WHEN RECEIVER ISN'T PLUGGED IN, UNCOMMENT THIS LINE AND SET dropPulse to 0!

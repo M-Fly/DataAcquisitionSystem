@@ -11,8 +11,7 @@ GpsData::GpsData() : nmea(gps_buffer, sizeof(gps_buffer)) {
 bool GpsData::encode(char c) {
   // Encodes the most recent character into the NMEA object
   bool success = nmea.process(c);
-
- if (success && nmea.isValid()) {
+ if (success/* && nmea.isValid()*/) {
 
     // If a new NMEA sentence has been parsed and is valid
     
