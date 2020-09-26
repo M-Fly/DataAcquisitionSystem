@@ -14,8 +14,8 @@ int zero_count = 2;
 float cur_alt = -1;
 
 // Acceleration and Gyro values. Vector carries x, y, and z values
-imu::Vector<3> accel;
-imu::Vector<3> gyros;
+//imu::Vector<3> accel;
+//imu::Vector<3> gyros;
 
 // Rolling Mean variables for GyroX, GyroY, GyroZ, AccelX, AccelY, AccelZ,
 const int numReadings = 4;         //Number of readings for rolling mean
@@ -43,4 +43,3 @@ float AYavg = 0;                   //Average for AccelY
 float AZavg = 0;                   //Average for AccelZ
 
 #endif
-
