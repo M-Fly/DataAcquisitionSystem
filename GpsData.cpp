@@ -1,3 +1,4 @@
+
 #include "GpsData.h"
 
 GpsData::GpsData() : nmea(gps_buffer, sizeof(gps_buffer)) {
